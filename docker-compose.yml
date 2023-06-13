@@ -32,13 +32,13 @@ services:
       - app-network
 
   db:
-    image: postgres
+    image: postgres:15.3
     restart: always
     container_name: db
     environment:
-      POSTGRES_USER: 'admin'
-      POSTGRES_PASSWORD: 'strongPassword'
-      POSTGRES_DB: 'db'
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "strongPassword"
+      POSTGRES_DB: "db"
 
     ports:
       - 5432:5432
