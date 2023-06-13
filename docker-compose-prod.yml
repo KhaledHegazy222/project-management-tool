@@ -33,7 +33,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      DOMAINS: "project-mangement.duckdns.org -> http://client:3000, api.project-mangement.duckdns.org -> http://server:8000"
+      DOMAINS: "project-management.duckdns.org -> http://client:3000, api.project-management.duckdns.org -> http://server:8000"
       STAGE: "production" # Don't use production until staging works
     volumes:
       - https-portal-data:/var/lib/https-portal
