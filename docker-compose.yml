@@ -1,0 +1,51 @@
+version: "3.5"
+
+services:
+  client:
+    restart: always
+    container_name: client
+    build:
+      context: client
+      target: development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+  server:
+    container_name: server
+    restart: always
+    depends_on:
+      - db
+    build:
+      context: server
+    ports:
+      - 8000:8000
+    command: "npm run dev"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+  db:
+    image: postgres
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_USER: 'admin'
+      POSTGRES_PASSWORD: 'strongPassword'
+      POSTGRES_DB: 'db'
+
+    ports:
+      - 5432:5432
+    volumes:
+      - ./server/data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:

@@ -1,0 +1,40 @@
+name: Upload Files to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client
+
+      - name: Configure SSH connection
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 3.82.163.103 >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+
+      - name: Upload files to EC2
+        run: |
+          rsync -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -r "${{ github.workspace }}/."  ubuntu@3.82.163.103:/home/ubuntu/app
+
+      - name: Run deploy script on EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@3.82.163.103 "chmod +x /home/ubuntu/app/deploy.sh && sudo /home/ubuntu/app/deploy.sh"
+
+
+
+      
