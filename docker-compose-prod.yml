@@ -27,6 +27,22 @@ services:
     networks:
       - app-network
 
+  db:
+    image: postgres:15.3
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "strongPassword"
+      POSTGRES_DB: "db"
+
+    ports:
+      - 5432:5432
+    volumes:
+      - ./server/data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   https-portal:
     image: steveltn/https-portal:1
     ports:
