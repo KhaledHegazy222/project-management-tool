@@ -7,9 +7,4 @@ export const StyledButton = styled(Button)<ButtonProps>(() => ({
   borderRadius: "7px",
   fontWeight: "700",
   border: "1px solid",
-  transition: "transform 300ms ease-in-out",
-
-  "&:hover": {
-    transform: "scale(1.05)",
-  },
 }));

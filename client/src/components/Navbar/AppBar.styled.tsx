@@ -6,5 +6,4 @@ export const StyledAppBar = styled(AppBar)<AppBarProps>({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  boxShadow: "none",
 });

@@ -1,7 +1,7 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import Navbar from "./components/Navbar/Navbar";
 import "@fontsource/inter";
-import Hero from "./components/Home/Hero/Hero";
+import Home from "./components/Home";
 
 const theme = createTheme({
   palette: {
@@ -21,8 +21,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Navbar />
-        <Hero />
+        <Home />
         <CssBaseline />
       </ThemeProvider>
     </>

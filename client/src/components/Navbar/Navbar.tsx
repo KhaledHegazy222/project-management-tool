@@ -11,7 +11,7 @@ const navElements: string[] = [
 ];
 const Navbar = () => {
   return (
-    <StyledAppBar position="sticky">
+    <StyledAppBar position="static">
       <Toolbar
         sx={{
           width: "90%",

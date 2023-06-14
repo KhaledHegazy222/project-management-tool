@@ -1,15 +1,11 @@
 import { Box, Typography } from "@mui/material";
 import { StyledButton } from "./Hero.styled";
-import heroBackground from "@/assets/images/heroBackground.avif";
 import homeMain from "@/assets/images/heroMain.png";
 const Hero = () => {
   return (
     <>
       <Box
         sx={{
-          backgroundImage: `url(${heroBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
           minHeight: "calc(100vh - 100px)",
           display: "flex",
           justifyContent: "center",
