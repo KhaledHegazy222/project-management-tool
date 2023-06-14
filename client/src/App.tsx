@@ -1,7 +1,6 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import Navbar from "./components/Navbar/Navbar";
 import "@fontsource/inter";
-import Home from "./components/Home";
+import { routes } from "./pages/routes";
 
 const theme = createTheme({
   palette: {
@@ -21,7 +20,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Home />
+        {routes}
         <CssBaseline />
       </ThemeProvider>
     </>

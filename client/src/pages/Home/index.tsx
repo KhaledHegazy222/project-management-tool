@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
-import Navbar from "../Navbar/Navbar";
-import Features from "./Features/Features";
-import Hero from "./Hero/Hero";
+import Navbar from "@/components/Navbar";
+import Features from "@/components/Home/Features";
+import Hero from "@/components/Home/Hero";
 import homeBackground from "@/assets/images/homeBackground.jpg";
 const Home = () => {
   return (
