@@ -1,7 +1,9 @@
 import { Box, Typography } from "@mui/material";
+import { useNavigate, NavigateFunction } from "react-router-dom";
 import { StyledButton } from "./Hero.styled";
 import homeMain from "@/assets/images/heroMain.png";
 const Hero = () => {
+  const navigate: NavigateFunction = useNavigate();
   return (
     <>
       <Box
@@ -59,24 +61,25 @@ const Hero = () => {
             >
               <StyledButton
                 sx={{
-                  backgroundColor: "secondary.main",
+                  backgroundColor: "white.main",
                   color: "primary.main",
                   "&:hover": {
-                    backgroundColor: "secondary.main",
+                    backgroundColor: "white.main",
                     color: "primary.main",
                   },
                 }}
+                onClick={() => navigate("/account/signup")}
               >
                 Sign up - it's free
               </StyledButton>
               <StyledButton
                 sx={{
                   backgroundColor: "primary.main",
-                  color: "secondary.main",
+                  color: "white.main",
                   borderColor: "primary.main",
                   "&:hover": {
                     backgroundColor: "primary.main",
-                    color: "secondary.main",
+                    color: "white.main",
                   },
                 }}
               >

@@ -72,10 +72,10 @@ const Features = () => {
             <Typography
               component="span"
               sx={{
-                // color: "#ffe64f",
                 fontSize: "inherit",
                 fontWeight: "inherit",
-                background: "-webkit-linear-gradient(0deg,#f00,#ffa500)",
+                background: (theme) =>
+                  `-webkit-linear-gradient(0deg,${theme.palette.primary.main},${theme.palette.secondary.main})`,
                 textTransform: "capitalize",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",

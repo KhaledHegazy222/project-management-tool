@@ -2,6 +2,7 @@ import { Box, Button, Toolbar, Typography } from "@mui/material";
 import { StyledAppBar } from "./AppBar.styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import logo from "@/assets/images/logo100.png";
+import { Link } from "react-router-dom";
 const navElements: string[] = [
   "Features",
   "Solutions",
@@ -38,7 +39,7 @@ const Navbar = () => {
             sx={{
               fontSize: "1.5rem",
               fontWeight: "700",
-              color: (theme) => `${theme.palette.secondary.main}`,
+              color: (theme) => `${theme.palette.white.main}`,
             }}
           >
             Ngatur
@@ -57,7 +58,7 @@ const Navbar = () => {
             <Button
               key={element}
               sx={{
-                color: "secondary.main",
+                color: "white.main",
                 display: "flex",
                 alignItems: "center",
                 flexDirection: "row",
@@ -65,13 +66,13 @@ const Navbar = () => {
               }}
             >
               <Typography>{element}</Typography>
-              <ExpandMoreIcon sx={{ color: "secondary.main", margin: "5px" }} />
+              <ExpandMoreIcon sx={{ color: "white.main", margin: "5px" }} />
             </Button>
           ))}
         </Box>
         <Button
           sx={{
-            backgroundColor: "secondary.main",
+            backgroundColor: "white.main",
             color: "primary.main",
             padding: "15px",
             display: "flex",
@@ -83,8 +84,8 @@ const Navbar = () => {
 
             borderRadius: "5px",
             "&:hover": {
-              backgroundColor: "secondary.main",
-              borderColor: "secondary.main",
+              backgroundColor: "white.main",
+              borderColor: "white.main",
               color: "primary.main",
             },
           }}
