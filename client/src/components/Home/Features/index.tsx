@@ -99,7 +99,7 @@ const Features = () => {
         </Box>
         <Grid container>
           {featuresList.map((feature: featureItem) => (
-            <Grid item xs={4}>
+            <Grid item xs={4} key={feature.title}>
               <FeatureContainer {...feature} />
             </Grid>
           ))}

@@ -2,7 +2,7 @@ import { Box, Button, Toolbar, Typography } from "@mui/material";
 import { StyledAppBar } from "./AppBar.styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import logo from "@/assets/images/logo100.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const navElements: string[] = [
   "Features",
   "Solutions",
@@ -11,6 +11,7 @@ const navElements: string[] = [
   "Resources",
 ];
 const Navbar = () => {
+  const navigate = useNavigate();
   return (
     <StyledAppBar position="static">
       <Toolbar
@@ -71,6 +72,7 @@ const Navbar = () => {
           ))}
         </Box>
         <Button
+          onClick={() => navigate("/dashboard")}
           sx={{
             backgroundColor: "white.main",
             color: "primary.main",
@@ -98,7 +100,7 @@ const Navbar = () => {
               textTransform: "none",
             }}
           >
-            Go to your board
+            Go to your Dashboard
           </Typography>
         </Button>
       </Toolbar>

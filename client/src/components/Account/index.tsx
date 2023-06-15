@@ -1,9 +1,8 @@
-import { useCallback, SyntheticEvent } from "react";
+import { useCallback, SyntheticEvent, useState } from "react";
 import Navbar from "../Navbar";
 import {
   useLocation,
   Location,
-  Link,
   useNavigate,
   NavigateFunction,
 } from "react-router-dom";
@@ -17,21 +16,61 @@ import {
 import { StyledButton, StyledTextField } from "./Account.styled";
 import accountBackground from "@/assets/images/accountBackground.jpg";
 
+type formDataType = {
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  password: string;
+  "confirm-password"?: string;
+};
+const formDataInitialValue: formDataType = {
+  first_name: "",
+  last_name: "",
+  email: "",
+  password: "",
+  "confirm-password": "",
+};
+type signupRequestBodyType = {
+  mail: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+};
+type loginRequestBodyType = {
+  mail: string;
+  password: string;
+};
+
 const Account = () => {
   const { pathname }: Location = useLocation();
   const login: boolean = pathname === "/account/login";
-  const navigate: NavigateFunction = useNavigate();
+
+  const [formData, setFormData] = useState<formDataType>(formDataInitialValue);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      const name = e.target.name;
+      const value = e.target.value;
+
+      setFormData((formBody) => ({
+        ...formBody,
+        [name]: value,
+      }));
+    },
+    []
+  );
 
   const handleSubmit = useCallback(
     (e: SyntheticEvent) => {
       e.preventDefault();
+      console.log(formData);
+
       if (login) {
         navigate("/");
       } else {
         navigate("/");
       }
     },
-    [login, navigate]
+    [login, formData]
   );
 
   return (
@@ -86,6 +125,7 @@ const Account = () => {
             <Typography variant="subtitle1">
               Enter the information you entered while registering .
             </Typography>
+
             <form onSubmit={handleSubmit}>
               {login ? (
                 <>
@@ -103,7 +143,10 @@ const Account = () => {
                     type="password"
                     label="Password"
                     sx={{
-                      display: "block",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      margin: "10px 0",
                     }}
                   />
                   <Box>

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Home from "./Home";
 import Account from "@/components/Account";
+import Dashboard from "@/components/Dashboard";
 
 export type pageEntry = {
   title: string;
@@ -23,5 +24,10 @@ export const pagesData: pageEntry[] = [
     title: "Sign Up",
     path: "/account/signup",
     component: <Account />,
+  },
+  {
+    title: "Dashboard",
+    path: "/dashboard/*",
+    component: <Dashboard />,
   },
 ];
