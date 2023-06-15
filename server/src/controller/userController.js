@@ -22,7 +22,7 @@ exports.user_signup_post = [
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage('first name must be specified.'),
+    .withMessage('last name must be specified.'),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -50,7 +50,7 @@ exports.user_login_post = [
   body('mail')
     .isEmail()
     .escape()
-    .withMessage('must be email'),
+    .withMessage('email format not correct'),
   body('password')
     .escape(),
   // eslint-disable-next-line consistent-return
