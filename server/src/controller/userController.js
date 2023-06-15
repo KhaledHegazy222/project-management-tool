@@ -1,4 +1,4 @@
-const authHelper = require('../authHelper');
+const authHelper = require('../middlewares/authHelper');
 const dbConnection = require('../db/connection');
 const queries = require('../db/queries');
 const bcrypt = require('bcrypt');
