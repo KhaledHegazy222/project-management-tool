@@ -1,4 +1,5 @@
 import { Button, ButtonProps, TextField, styled } from "@mui/material";
+import { Link } from "react-router-dom";
 
 export const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   width: "100%",
@@ -14,8 +15,15 @@ export const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
 }));
 
 export const StyledTextField = styled(TextField)(() => ({
+  width: "100%",
   margin: "10px 0",
-  "& .MuiInputBase-input.MuiOutlinedInput-input": {
-    width: "400px",
+}));
+
+export const StyledLink = styled(Link)(({ theme }) => ({
+  textDecoration: "none",
+  color: `${theme.palette.primary.main}`,
+  fontWeight: "600",
+  "&:hover": {
+    color: `${theme.palette.primary.dark}`,
   },
 }));

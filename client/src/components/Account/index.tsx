@@ -13,7 +13,7 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { StyledButton, StyledTextField } from "./Account.styled";
+import { StyledButton, StyledLink, StyledTextField } from "./Account.styled";
 import accountBackground from "@/assets/images/accountBackground.jpg";
 
 type formDataType = {
@@ -42,6 +42,7 @@ type loginRequestBodyType = {
 };
 
 const Account = () => {
+  const navigate: NavigateFunction = useNavigate();
   const { pathname }: Location = useLocation();
   const login: boolean = pathname === "/account/login";
 
@@ -102,9 +103,11 @@ const Account = () => {
             <Typography
               variant="h2"
               sx={{
-                fontSize: "5.5rem",
+                fontSize: "5rem",
                 fontWeight: "900",
                 color: "black.main",
+                background: "rgba(255,255,255,0.3)",
+                padding: "50px",
               }}
             >
               Digital Platform for project management.
@@ -120,7 +123,16 @@ const Account = () => {
             alignItems: "center",
           }}
         >
-          <Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "60%",
+              maxWidth: "400px",
+            }}
+          >
             <Typography variant="h4">Hey, hello 👋</Typography>
             <Typography variant="subtitle1">
               Enter the information you entered while registering .
@@ -130,73 +142,89 @@ const Account = () => {
               {login ? (
                 <>
                   <StyledTextField
-                    id="email"
                     type="email"
                     label="Email"
-                    sx={{
-                      display: "block",
-                      margin: "10px 0",
-                    }}
+                    name="email"
+                    onChange={handleChange}
                   />
+
                   <StyledTextField
-                    id="password"
                     type="password"
                     label="Password"
+                    name="password"
+                    onChange={handleChange}
+                  />
+
+                  <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
                       margin: "10px 0",
                     }}
-                  />
-                  <Box>
+                  >
                     <FormControlLabel
                       control={<Checkbox />}
                       label="Remember me"
                     />
-                    <Link to="/account/forget-password">Forget Password</Link>
+                    <StyledLink to="/account/forget-password">
+                      Forget Password ?
+                    </StyledLink>
                   </Box>
-                  <Link to="/account/signup"></Link>
 
-                  <Typography>
-                    Don't have an account yet,{" "}
-                    <Link to="/account/signup"> Signup now.</Link>
-                  </Typography>
+                  <StyledLink to="/account/signup">
+                    Don't have an account? Sign Up
+                  </StyledLink>
 
                   <StyledButton type="submit">Login</StyledButton>
                 </>
               ) : (
-                <>
-                  <StyledTextField
-                    id="email"
-                    type="email"
-                    label="Email"
-                    sx={{
-                      display: "block",
-                    }}
-                  />
-                  <StyledTextField
-                    id="password"
-                    type="password"
-                    label="Password"
-                    sx={{
-                      display: "block",
-                    }}
-                  />
-                  <StyledTextField
-                    id="confirm-password"
-                    type="password"
-                    label="Confirm Password"
-                    sx={{
-                      display: "block",
-                    }}
-                  />
-                  <Typography>
-                    Already have an account,
-                    <Link to="/account/login"> Login now.</Link>
-                  </Typography>
+                <Grid container>
+                  <Grid item xs={6} sx={{ paddingRight: "10px" }}>
+                    <StyledTextField
+                      type="text"
+                      label="First Name"
+                      name="first_name"
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
+                    <StyledTextField
+                      type="text"
+                      label="Last Name"
+                      name="last_name"
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <StyledTextField
+                      type="email"
+                      label="Email"
+                      name="email"
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <StyledTextField
+                      type="password"
+                      label="Password"
+                      name="password"
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <StyledTextField
+                      type="password"
+                      label="Confirm Password"
+                      name="confirm-password"
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <StyledLink to="/account/login">
+                    Have already an account? Login
+                  </StyledLink>
                   <StyledButton type="submit">Signup</StyledButton>
-                </>
+                </Grid>
               )}
             </form>
           </Box>
