@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const userRoute = require('./route/userRoute');
+const projectRoute = require('./route/projectRoute');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/api/v1/', userRoute);
+app.use('/api/v1/project', projectRoute);
 
 app.listen(process.env.PORT, () => {
   console.log('server started...');
