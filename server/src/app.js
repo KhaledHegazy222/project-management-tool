@@ -1,55 +1,20 @@
-const http = require("http");
+const cors = require('cors');
+const express = require('express');
+const bodyParser = require('body-parser');
+require('dotenv').config();
 
-const PORT = 8000;
+const app = express();
 
-const server = http.createServer((req, res) => {
-  res.write("Hello World");
-  res.end();
-});
+app.use(cors());
+// parse application/json parser
+app.use(bodyParser.json());
+// parse application/x-www-form-urlencoded parser
+app.use(bodyParser.urlencoded({ extended: false }));
 
-server.listen(PORT, () => {
-  console.log(`Server is running on PORT: ${PORT}`);
-});
+app.get('/api/v1/', (req, res) => {
+  return res.send('hello server');
+})
 
-// const { Client } = require("pg");
-
-// const connectDb = async () => {
-//   try {
-//     const client = new Client({
-//       user: "admin",
-//       host: "db",
-//       database: "test_db",
-//       password: "mypassword",
-//       port: 5432,
-//     });
-
-//     await client.connect();
-//     const res = await client.query("SELECT * FROM some_table");
-//     console.log(res);
-//     await client.end();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// connectDb();
-
-const { Pool } = require("pg");
-
-const pool = new Pool({
-  user: "admin",
-  host: "db",
-  database: "db",
-  password: "strongPassword",
-  port: 5432,
-});
-
-pool.query("SELECT NOW()", (err, res) => {
-  if (err) {
-    console.error("Error executing query", err);
-  } else {
-    console.log("Connected to PostgreSQL");
-    console.log("Current time:", res.rows[0].now);
-  }
-  pool.end();
+app.listen(process.env.PORT, () => {
+  console.log('server started...');
 });
