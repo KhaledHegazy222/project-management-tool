@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   Box,
   Grid,
@@ -20,13 +20,7 @@ import {
   Assignment,
 } from "@mui/icons-material";
 import { useState } from "react";
-import {
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Tasks from "./Tasks";
 import Members from "./Members";
 
@@ -58,17 +52,20 @@ const Dashboard = () => {
 
   const [projects, setProjects] = useState<projectType[]>(projectsInitialValue);
 
-  const toggleCollapse = (id: string) => {
-    setProjects((projects: projectType[]) => {
-      const projectsCopy = [...projects];
-      return projectsCopy.map((project: projectType) => {
-        if (project.id === id) {
-          project.opened = !project.opened;
-        }
-        return project;
+  const toggleCollapse = useCallback(
+    (id: string) => {
+      setProjects((projects: projectType[]) => {
+        const projectsCopy = [...projects];
+        return projectsCopy.map((project: projectType) => {
+          if (project.id === id) {
+            project.opened = !project.opened;
+          }
+          return project;
+        });
       });
-    });
-  };
+    },
+    [setProjects]
+  );
 
   return (
     <>
@@ -77,7 +74,7 @@ const Dashboard = () => {
         container
         sx={{
           width: "70%",
-          margin: "20px auto",
+          margin: "3% auto",
         }}
       >
         <Grid item xs={2}>
