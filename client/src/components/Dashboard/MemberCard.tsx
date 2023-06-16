@@ -1,13 +1,6 @@
 import React from "react";
-import {
-  Avatar,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Typography,
-} from "@mui/material";
+import { Avatar, Card, CardContent, Typography } from "@mui/material";
+import avatarImage from "@/assets/images/avatar.avif";
 
 export type memberType = {
   id: string;
@@ -29,7 +22,7 @@ const MemberCard = ({ id, src, first_name, last_name, bio }: memberType) => {
       }}
     >
       <CardContent>
-        <Avatar sx={{ margin: "30px auto" }} />
+        <Avatar sx={{ margin: "30px auto" }} alt="User" src={avatarImage} />
         <Typography
           variant="h6"
           sx={{

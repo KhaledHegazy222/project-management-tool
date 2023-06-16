@@ -20,14 +20,8 @@ import {
   Assignment,
 } from "@mui/icons-material";
 import { useState } from "react";
-import {
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import Tasks from "./Tasks";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import Boards from "./Boards";
 import Members from "./Members";
 
 type projectType = {
@@ -76,36 +70,20 @@ const Dashboard = () => {
       <Grid
         container
         sx={{
-          width: "70%",
+          width: "80%",
           margin: "20px auto",
         }}
       >
         <Grid item xs={2}>
-          <Box
+          <Typography
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0",
+              fontSize: "1.6rem",
+              fontWeight: "800",
             }}
           >
-            <Typography
-              sx={{
-                fontSize: "1.6rem",
-                fontWeight: "800",
-              }}
-            >
-              Projects
-            </Typography>
-            <IconButton>
-              <AddBox
-                sx={{
-                  color: (theme) => `${theme.palette.primary.main}`,
-                  fontSize: "1.7rem",
-                }}
-              />
-            </IconButton>
-          </Box>
+            Projects
+          </Typography>
+
           <Divider />
           <List>
             {projects.map((project: projectType) => (
@@ -152,7 +130,7 @@ const Dashboard = () => {
 
                       <ListItemButton
                         onClick={() => {
-                          navigate(`/dashboard/${project.id}/tasks`);
+                          navigate(`/dashboard/${project.id}/boards`);
                         }}
                       >
                         <Assignment />
@@ -161,7 +139,7 @@ const Dashboard = () => {
                             margin: "0 10px",
                           }}
                         >
-                          Tasks
+                          Boards
                         </Typography>
                       </ListItemButton>
                     </List>
@@ -174,7 +152,7 @@ const Dashboard = () => {
         <Grid item xs={10}>
           <Routes>
             <Route path="/:id/members" element={<Members />} />
-            <Route path="/:id/tasks" element={<Tasks />} />
+            <Route path="/:id/boards" element={<Boards />} />
           </Routes>
         </Grid>
       </Grid>

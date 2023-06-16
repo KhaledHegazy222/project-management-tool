@@ -65,14 +65,6 @@ const Navbar = () => {
           >
             <StyledNavButton>
               <Typography sx={{ fontSize: "inherit", fontWeight: "inherit" }}>
-                Workspaces
-              </Typography>
-              <ExpandMoreIcon
-                sx={{ fontSize: "inherit", fontWeight: "inherit" }}
-              />
-            </StyledNavButton>
-            <StyledNavButton>
-              <Typography sx={{ fontSize: "inherit", fontWeight: "inherit" }}>
                 Recent
               </Typography>
               <ExpandMoreIcon
@@ -87,20 +79,6 @@ const Navbar = () => {
                 sx={{ fontSize: "inherit", fontWeight: "inherit" }}
               />
             </StyledNavButton>
-            <Button
-              sx={{
-                backgroundColor: "white.main",
-                margin: "10px",
-                fontSize: "1rem",
-                fontWeight: "600",
-                "&:hover": {
-                  backgroundColor: "white.main",
-                  color: "primary.main",
-                },
-              }}
-            >
-              Create
-            </Button>
           </Box>
           <Box
             sx={{
