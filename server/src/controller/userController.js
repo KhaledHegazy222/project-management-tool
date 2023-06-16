@@ -13,12 +13,12 @@ exports.user_signup_post = [
     .isLength({ min: 6 })
     .escape()
     .withMessage('password must be at least 6 length'),
-  body('firstName')
+  body('first_name')
     .trim()
     .isLength({ min: 1 })
     .escape()
     .withMessage('first name must be specified.'),
-  body('lastName')
+  body('last_name')
     .trim()
     .isLength({ min: 1 })
     .escape()
@@ -29,8 +29,10 @@ exports.user_signup_post = [
 
     try {
       const {
-        mail, password, firstName, lastName,
+        mail, password,
       } = req.body;
+      const firstName = req.body.first_name;
+      const lastName = req.body.last_name;
 
       const getUserQuery = queries.queryList.GET_USER_QUERY;
       const values1 = [mail];

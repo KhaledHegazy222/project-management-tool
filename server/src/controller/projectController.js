@@ -21,7 +21,7 @@ exports.project_list_get = [
 ];
 
 exports.project_create_post = [
-  body('projectTitle')
+  body('project_title')
     .isLength({ min: 1 })
     .escape()
     .withMessage('projectTitle can not be empty'),
@@ -32,7 +32,7 @@ exports.project_create_post = [
 
     try {
       const { userId } = req;
-      const { projectTitle } = req.body;
+      const projectTitle = req.body.project_title;
 
       await dbConnection.dbQuery('BEGIN');
       const addProjectQuery = queries.queryList.ADD_PROJECT_QUERY;
