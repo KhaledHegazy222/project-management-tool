@@ -32,11 +32,11 @@ exports.user_signup_post = [
         mail, password, firstName, lastName,
       } = req.body;
 
-      const values1 = [mail];
       const getUserQuery = queries.queryList.GET_USER_QUERY;
+      const values1 = [mail];
       const queryResp = await dbConnection.dbQuery(getUserQuery, values1);
       if (queryResp.rows.length !== 0) {
-        return res.status(400).send({
+        return res.status(400).json({
           errors: [
             {
               type: 'field',
@@ -51,14 +51,13 @@ exports.user_signup_post = [
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const values2 = [mail, hashedPassword, firstName, lastName];
       const createUserQuery = queries.queryList.CREATE_USER_QUERY;
+      const values2 = [mail, hashedPassword, firstName, lastName];
       await dbConnection.dbQuery(createUserQuery, values2);
 
-      return res.status(201).send('Successfully signed up');
+      return res.sendStatus(201);
     } catch (err) {
-      console.log('Error: ', err);
-      return res.status(500).send({ error: 'Failed to sign up' });
+      return res.sendStatus(500);
     }
   },
 ];
@@ -77,24 +76,22 @@ exports.user_login_post = [
 
     try {
       const { mail, password } = req.body;
-      const values = [mail];
+
       const getUserQuery = queries.queryList.GET_USER_QUERY;
+      const values = [mail];
       const queryResp = await dbConnection.dbQuery(getUserQuery, values);
 
-      if (queryResp.rows.length === 0) return res.status(404).json({ message: 'mail is not exist' });
-      if (queryResp.rows.length > 1) return res.status(500).send({ error: 'Failed to log in' });
+      if (queryResp.rows.length === 0) return res.sendStatus(404);
 
       const user = queryResp.rows[0];
       bcrypt.compare(password, user.password, (err, result) => {
-        if (err || !result) return res.status(401).json({ message: 'Incorrect password' });
-        return res.json({
-          message: 'success',
+        if (err || !result) return res.sendStatus(401);
+        return res.status(200).json({
           token: authHelper.generateAccessToken(user.user_id.toString()),
         });
       });
     } catch (err) {
-      console.log('Error: ', err);
-      return res.status(500).send({ error: 'Failed to log in' });
+      return res.sendStatus(500);
     }
   },
 ];

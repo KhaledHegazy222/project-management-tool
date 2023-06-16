@@ -13,9 +13,9 @@ exports.project_list_get = [
       const values = [userId];
       const queryResp = await dbConnection.dbQuery(getProjectListQuery, values);
 
-      return res.status(200).send(queryResp.rows);
+      return res.status(200).json(queryResp.rows);
     } catch {
-      return res.status(500).send({ error: 'Failed to get project list' });
+      return res.status(500);
     }
   },
 ];
@@ -47,7 +47,7 @@ exports.project_create_post = [
       return res.sendStatus(201);
     } catch {
       await dbConnection.dbQuery('ROLLBACK');
-      return res.status(500).send({ error: 'Failed to create new project' });
+      return res.status(500);
     }
   },
 ];
@@ -69,9 +69,9 @@ exports.project_detail_get = [
       const values2 = [projectId];
       const queryResp2 = await dbConnection.dbQuery(getProjectDetailQuery, values2);
 
-      return res.status(200).send(queryResp2.rows);
+      return res.status(200).json(queryResp2.rows);
     } catch {
-      return res.status(500).send({ error: 'Failed to get project list' });
+      return res.status(500);
     }
   },
 ];
