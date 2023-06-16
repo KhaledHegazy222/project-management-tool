@@ -1,6 +1,13 @@
 import React from "react";
 import TaskBody, { taskType } from "./TaskBody";
-import { Box, List, ListItem, ListItemButton, Typography } from "@mui/material";
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemButton,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { Add } from "@mui/icons-material";
 import CustomBadge from "./CustomBadge";
 
@@ -28,37 +35,44 @@ const BoardBody = ({ name, color, tasks }: boardType) => {
         }}
       >
         <CustomBadge color={color} />
-        <Typography variant="h6" sx={{
-          fontWeight:"600"
-        }}>{name}</Typography>
-      </Box>
-      <List>
-        <ListItemButton
+        <Typography
+          variant="h6"
           sx={{
-            background: "rgba(0,0,0,0.1)",
-            color: "black.main",
-            borderRadius: "10px",
-            "&:hover": {
-              backgroundColor: "primary.main",
-              color: "white.main",
-            },
+            fontWeight: "600",
           }}
         >
-          <Add sx={{ margin: "auto" }} />
-        </ListItemButton>
-        {tasks.map((task: taskType) => (
-          <ListItem
+          {name}
+        </Typography>
+      </Box>
+      <List>
+        <Paper>
+          <ListItemButton
             sx={{
-              background: "rgba(0,0,0,0.1)",
-              margin: "10px 0",
+              color: "black.main",
               borderRadius: "10px",
               "&:hover": {
-                background: "rgba(0,0,0,0.2)",
+                backgroundColor: "primary.main",
+                color: "white.main",
               },
             }}
           >
-            <TaskBody {...task} />
-          </ListItem>
+            <Add sx={{ margin: "auto" }} />
+          </ListItemButton>
+        </Paper>
+        {tasks.map((task: taskType) => (
+          <Paper>
+            <ListItem
+              sx={{
+                margin: "10px 0",
+                borderRadius: "10px",
+                "&:hover": {
+                  background: "rgba(0,0,0,0.05)",
+                },
+              }}
+            >
+              <TaskBody {...task} />
+            </ListItem>
+          </Paper>
         ))}
       </List>
     </Box>

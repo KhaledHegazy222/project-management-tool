@@ -1,4 +1,3 @@
-import React from "react";
 import { Avatar, Box, Divider, IconButton, Typography } from "@mui/material";
 import { AttachFile, Comment, MoreHoriz } from "@mui/icons-material";
 import avatarImage from "@/assets/images/avatar.avif";

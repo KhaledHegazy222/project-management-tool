@@ -16,6 +16,8 @@ import {
 import { StyledButton, StyledLink, StyledTextField } from "./Account.styled";
 import accountBackground from "@/assets/images/accountBackground.jpg";
 import { axiosServer } from "@/services";
+import { AxiosError } from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 
 type formDataType = {
   first_name?: string;
@@ -47,6 +49,8 @@ const Account = () => {
   const { pathname }: Location = useLocation();
   const login: boolean = pathname === "/account/login";
 
+  const { auth, setAuth } = useAuth();
+
   const [formData, setFormData] = useState<formDataType>(formDataInitialValue);
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -64,24 +68,32 @@ const Account = () => {
   const handleSubmit = useCallback(
     async (e: SyntheticEvent) => {
       e.preventDefault();
-      console.log(formData);
+      try {
+        if (login) {
+          const requestBody: loginRequestBodyType = {
+            mail: formData.email,
+            password: formData.password,
+          };
 
-      if (login) {
-        const requestBody: loginRequestBodyType = {
-          mail: formData.email,
-          password: formData.password,
-        };
-        console.log(requestBody);
-        axiosServer.post("/");
-      } else {
-        const requestBody: signupRequestBodyType = {
-          first_name: formData.first_name as string,
-          last_name: formData.last_name as string,
-          mail: formData.email,
-          password: formData.password,
-        };
-        console.log(requestBody);
-        axiosServer.post("/");
+          const response = await axiosServer.post("/login", requestBody);
+
+          
+          setAuth(response.data.token);
+        } else {
+          const requestBody: signupRequestBodyType = {
+            first_name: formData.first_name as string,
+            last_name: formData.last_name as string,
+            mail: formData.email,
+            password: formData.password,
+          };
+
+          const response = await axiosServer.post("/signup", requestBody);
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        if (error) {
+          console.log((error as AxiosError).response?.data);
+        }
       }
     },
     [login, formData]

@@ -1,5 +1,5 @@
-import axios, { Axios } from "axios";
+import axios from "axios";
 
-export const axiosServer = new Axios({
+export const axiosServer = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
