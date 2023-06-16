@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { StyledButton, StyledLink, StyledTextField } from "./Account.styled";
 import accountBackground from "@/assets/images/accountBackground.jpg";
+import { axiosServer } from "@/services";
 
 type formDataType = {
   first_name?: string;
@@ -61,14 +62,26 @@ const Account = () => {
   );
 
   const handleSubmit = useCallback(
-    (e: SyntheticEvent) => {
+    async (e: SyntheticEvent) => {
       e.preventDefault();
       console.log(formData);
 
       if (login) {
-        navigate("/");
+        const requestBody: loginRequestBodyType = {
+          mail: formData.email,
+          password: formData.password,
+        };
+        console.log(requestBody);
+        axiosServer.post("/");
       } else {
-        navigate("/");
+        const requestBody: signupRequestBodyType = {
+          first_name: formData.first_name as string,
+          last_name: formData.last_name as string,
+          mail: formData.email,
+          password: formData.password,
+        };
+        console.log(requestBody);
+        axiosServer.post("/");
       }
     },
     [login, formData]
