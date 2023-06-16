@@ -32,11 +32,28 @@ exports.user_signup_post = [
         mail, password, firstName, lastName,
       } = req.body;
 
+      const values1 = [mail];
+      const getUserQuery = queries.queryList.GET_USER_QUERY;
+      const queryResp = await dbConnection.dbQuery(getUserQuery, values1);
+      if (queryResp.rows.length !== 0) {
+        return res.status(400).send({
+          errors: [
+            {
+              type: 'field',
+              value: mail,
+              msg: 'mail already exist',
+              path: 'mail',
+              location: 'body',
+            },
+          ],
+        });
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const values = [mail, hashedPassword, firstName, lastName];
+      const values2 = [mail, hashedPassword, firstName, lastName];
       const createUserQuery = queries.queryList.CREATE_USER_QUERY;
-      await dbConnection.dbQuery(createUserQuery, values);
+      await dbConnection.dbQuery(createUserQuery, values2);
 
       return res.status(201).send('Successfully signed up');
     } catch (err) {
