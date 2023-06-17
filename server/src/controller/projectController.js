@@ -76,8 +76,6 @@ exports.project_member_post = [
     .isEmail()
     .escape()
     .withMessage('must be email'),
-  body('member_state')
-    .isIn(['REVIEWER', 'ASSIGNEE']),
   authHelper.authenticateToken,
   checkHelper.checkOwner,
   async (req, res) => {
@@ -87,7 +85,6 @@ exports.project_member_post = [
     try {
       const { projectId } = req.params;
       const memberMail = req.body.member_mail;
-      const memberState = req.body.member_state;
 
       // get member id
       const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
@@ -97,7 +94,7 @@ exports.project_member_post = [
 
       // check if request already exist
       const getMemberRequestQuery = queries.queryList.GET_MEMBER_REQUEST_QUERY;
-      const values2 = [projectId, memberId, memberState];
+      const values2 = [projectId, memberId];
       const queryResp2 = await dbConnection.dbQuery(getMemberRequestQuery, values2);
 
       if (queryResp2.rows.length !== 0) {
@@ -105,9 +102,9 @@ exports.project_member_post = [
           errors: [
             {
               type: 'field',
-              value: memberState,
+              value: memberMail,
               msg: 'request already exist',
-              path: 'member_state',
+              path: 'memberMail',
               location: 'body',
             },
           ],
