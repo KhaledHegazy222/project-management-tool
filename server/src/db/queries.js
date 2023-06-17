@@ -2,7 +2,7 @@ exports.queryList = {
   CREATE_USER_QUERY: 'insert into "user"(mail, password, first_name, last_name) values ($1, $2, $3, $4)',
   GET_USER_QUERY: 'select * from "user" where mail = $1',
   GET_USER_ID_QUERY: 'select user_id from "user" where mail = $1',
-  GET_PROJECT_LIST_QUERY: 'select distinct project_id from project_user where user_id = $1',
+  GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
 
   ADD_PROJECT_QUERY: 'insert into project(project_title) values ($1)',
   DELETE_PROJECT_QUERY: 'delete from project where project_id = $1',
