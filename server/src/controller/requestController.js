@@ -14,7 +14,7 @@ exports.user_request_get = [
       const queryResp = await dbConnection.dbQuery(getMemberRequestsQuery, values);
       return res.status(200).json(queryResp.rows);
     } catch {
-      return res.status(500);
+      return res.sendStatus(500);
     }
   },
 ];

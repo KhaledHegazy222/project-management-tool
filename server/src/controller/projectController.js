@@ -16,7 +16,7 @@ exports.project_list_get = [
 
       return res.status(200).json(queryResp.rows);
     } catch {
-      return res.status(500);
+      return res.sendStatus(500);
     }
   },
 ];
@@ -66,7 +66,7 @@ exports.project_detail_get = [
 
       return res.status(200).json(queryResp2.rows[0]); // must has one row
     } catch {
-      return res.status(500);
+      return res.sendStatus(500);
     }
   },
 ];
@@ -138,7 +138,7 @@ exports.project_member_post = [
 
       return res.sendStatus(201);
     } catch {
-      return res.status(500);
+      return res.sendStatus(500);
     }
   },
 ];
