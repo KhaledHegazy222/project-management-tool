@@ -2,7 +2,7 @@ exports.queryList = {
   CREATE_USER_QUERY: 'insert into "user"(mail, password, first_name, last_name) values ($1, $2, $3, $4)',
   GET_USER_QUERY: 'select * from "user" where mail = $1',
   GET_USER_ID_QUERY: 'select user_id from "user" where mail = $1',
-  GET_PROJECT_LIST_QUERY: 'select distinct project_id from project_user where user_id = $1',
+  GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
 
   ADD_PROJECT_QUERY: 'insert into project(project_title) values ($1)',
   DELETE_PROJECT_QUERY: 'delete from project where project_id = $1',
@@ -22,5 +22,7 @@ exports.queryList = {
   GET_MEMBER_QUERY: 'select * from project_user where project_id = $1 and user_id = $2 and project_user_state = \'MEMBER\'',
   GET_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name, ps.project_user_state from (select user_id, project_user_state from project_user where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
   GET_REQUEST_PROJECT_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name from (select user_id from project_request where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
+
+  ADD_TASK_QUERY: 'insert into task(project_id, task_title, task_state, task_assignee_id, task_reviewer_id, task_due_date, task_description) values($1, $2, $3, $4, $5, $6, $7)',
 
 };
