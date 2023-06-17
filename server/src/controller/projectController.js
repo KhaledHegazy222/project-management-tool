@@ -187,3 +187,21 @@ exports.project_member_get = [
     }
   },
 ];
+
+exports.project_delete_post = [
+  authHelper.authenticateToken,
+  checkHelper.checkOwner,
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+
+      const deleteProjectQuery = queries.queryList.DELETE_PROJECT_QUERY;
+      const values = [projectId];
+      await dbConnection.dbQuery(deleteProjectQuery, values);
+
+      return res.sendStatus(200);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];

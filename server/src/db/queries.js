@@ -5,6 +5,7 @@ exports.queryList = {
   GET_PROJECT_LIST_QUERY: 'select distinct project_id from project_user where user_id = $1',
 
   ADD_PROJECT_QUERY: 'insert into project(project_title) values ($1)',
+  DELETE_PROJECT_QUERY: 'delete from project where project_id = $1',
   ADD_PROJECT_USER_RELATIONSHIP: 'insert into project_user(project_id, user_id, project_user_state) values ((SELECT currval(\'project_project_id_seq\')), $1, \'OWNER\')',
 
   CHECK_PROJECT_OWNER_QUERY: 'select project_id from project_user where project_id = $1 and user_id = $2 and project_user_state = \'OWNER\'',

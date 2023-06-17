@@ -8,5 +8,6 @@ router.post('/create', projectController.project_create_post);
 router.get('/:projectId', projectController.project_detail_get);
 router.post('/:projectId/member', projectController.project_member_post);
 router.get('/:projectId/member', projectController.project_member_get);
+router.post('/:projectId/delete', projectController.project_delete_post);
 
 module.exports = router;
