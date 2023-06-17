@@ -72,10 +72,14 @@ exports.project_detail_get = [
 ];
 
 exports.project_member_post = [
-  body('member_mail')
+  body('members_mail')
+    .isArray({ min: 1 }),
+  body('members_mail.*')
+    .not()
+    .isArray()
     .isEmail()
     .escape()
-    .withMessage('must be email'),
+    .withMessage('some emails not valid'),
   authHelper.authenticateToken,
   checkHelper.checkOwner,
   async (req, res) => {
@@ -84,57 +88,73 @@ exports.project_member_post = [
 
     try {
       const { projectId } = req.params;
-      const memberMail = req.body.member_mail;
+      const membersMail = req.body.members_mail;
 
-      // get member id
-      const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
-      const values1 = [memberMail];
-      const queryResp1 = await dbConnection.dbQuery(getUserIdQuery, values1);
-      const memberId = queryResp1.rows[0].user_id;
+      const nonValidMails = [];
+      const validMails = [];
+      const validMailsId = [];
+      await Promise.all(membersMail.map(async (memberMail) => {
+        // get member id
+        const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
+        const values1 = [memberMail];
+        const queryResp1 = await dbConnection.dbQuery(getUserIdQuery, values1);
+        if (queryResp1.rows.length === 0) {
+          nonValidMails.push({
+            memberMail,
+            msg: 'mail is not exist',
+          });
+          return;
+        }
+        const memberId = queryResp1.rows[0].user_id;
 
-      // check if request already exist
-      const getMemberRequestQuery = queries.queryList.GET_MEMBER_REQUEST_QUERY;
-      const values2 = [projectId, memberId];
-      const queryResp2 = await dbConnection.dbQuery(getMemberRequestQuery, values2);
+        // check if request already exist
+        const getMemberRequestQuery = queries.queryList.GET_MEMBER_REQUEST_QUERY;
+        const values2 = [projectId, memberId];
+        const queryResp2 = await dbConnection.dbQuery(getMemberRequestQuery, values2);
 
-      if (queryResp2.rows.length !== 0) {
+        if (queryResp2.rows.length !== 0) {
+          nonValidMails.push({
+            memberMail,
+            msg: 'request already exists',
+          });
+          return;
+        }
+
+        // check if member already exist
+        const checkProjectMemberQuery = queries.queryList.CHECK_PROJECT_MEMBER_QUERY;
+        const queryResp3 = await dbConnection.dbQuery(checkProjectMemberQuery, values2);
+
+        if (queryResp3.rows.length !== 0) {
+          nonValidMails.push({
+            memberMail,
+            msg: 'user already exists in this project',
+          });
+          return;
+        }
+
+        validMails.push(memberMail);
+        validMailsId.push(memberId);
+      }));
+
+      if (nonValidMails.length !== 0) {
         return res.status(400).json({
-          errors: [
-            {
-              type: 'field',
-              value: memberMail,
-              msg: 'request already exist',
-              path: 'memberMail',
-              location: 'body',
-            },
-          ],
-        });
-      }
-
-      // check if member already exist
-      const getMemberQuery = queries.queryList.GET_MEMBER_QUERY;
-      const queryResp3 = await dbConnection.dbQuery(getMemberQuery, values2);
-
-      if (queryResp3.rows.length !== 0) {
-        return res.status(400).json({
-          errors: [
-            {
-              type: 'field',
-              value: memberMail,
-              msg: 'member has been assigned to this project before',
-              path: 'member_mail',
-              location: 'body',
-            },
-          ],
+          non_valid_mails: nonValidMails,
+          valid_mails: validMails,
         });
       }
 
       // make query
-      const addMemberRequestQuery = queries.queryList.ADD_MEMBER_REQUEST_QUERY;
-      await dbConnection.dbQuery(addMemberRequestQuery, values2);
+      dbConnection.dbQuery('BEGIN');
+      await Promise.all(validMailsId.map((memberId) => {
+        const addMemberRequestQuery = queries.queryList.ADD_MEMBER_REQUEST_QUERY;
+        const values = [projectId, memberId];
+        return dbConnection.dbQuery(addMemberRequestQuery, values);
+      }));
+      dbConnection.dbQuery('COMMIT');
 
       return res.sendStatus(201);
     } catch {
+      dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },
