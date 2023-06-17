@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 const userRoute = require('./route/userRoute');
 const projectRoute = require('./route/projectRoute');
+const requestRoute = require('./route/requestRoute');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/api/v1/', userRoute);
 app.use('/api/v1/project', projectRoute);
+app.use('/api/v1/request', requestRoute);
 
 app.listen(process.env.PORT, () => {
   console.log('server started...');

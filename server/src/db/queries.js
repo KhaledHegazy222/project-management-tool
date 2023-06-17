@@ -13,6 +13,9 @@ exports.queryList = {
 
   ADD_MEMBER_REQUEST_QUERY: 'insert into project_request values($1, $2, $3)',
   GET_MEMBER_REQUEST_QUERY: 'select * from project_request where project_id = $1 and user_id = $2 and project_user_state =  $3',
+  GET_MEMBER_REQUESTS_QUERY: 'select pu.project_id, p.project_title, pu.project_user_state from (select project_id, project_user_state from project_request where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
   DELETE_MEMBER_REQUEST_QUERY: 'delete from project_request where project_id = $1 and user_id = $2 and project_user_state =  $3',
+
+  ADD_MEMBER_QUERY: 'insert into project_user values($1, $2, $3)',
 
 };
