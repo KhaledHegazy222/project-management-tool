@@ -11,11 +11,9 @@ import {
   Typography,
 } from "@mui/material";
 import BoardBody, { boardType } from "./BoardBody";
-import { Add, Close } from "@mui/icons-material";
-import { StyledTextField } from "./Boards.styled";
+
 import { axiosServer } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 
 const boards: boardType[] = [
@@ -131,35 +129,6 @@ const boards: boardType[] = [
 ];
 
 const Boards = () => {
-  const { auth } = useAuth();
-  const [newProjectDialogShow, setNewProjectDialogShow] =
-    useState<boolean>(false);
-  const projectTitleInputRef = useRef<HTMLInputElement | null>(null);
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      try {
-        await axiosServer.post(
-          "/project/create",
-          {
-            project_title: projectTitleInputRef.current?.value,
-          },
-          {
-            headers: { Authorization: `Bearer ${auth}` },
-          }
-        );
-        setNewProjectDialogShow(false);
-        toast.success("Project Created Successfully", {
-          autoClose: 2000,
-          position: "top-center",
-        });
-      } catch (error) {
-        console.log((error as AxiosError).response?.data);
-      }
-    },
-    [auth]
-  );
   return (
     <Box>
       <Typography
@@ -182,92 +151,6 @@ const Boards = () => {
         {boards.map((board: boardType, index: number) => (
           <BoardBody key={board.name} {...board} addButton={index === 0} />
         ))}
-      </Box>
-      <Dialog
-        open={newProjectDialogShow}
-        onClose={() => {
-          setNewProjectDialogShow(false);
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          New Project
-          <IconButton onClick={() => setNewProjectDialogShow(false)}>
-            <Close />
-          </IconButton>
-        </DialogTitle>
-
-        <form onSubmit={handleSubmit}>
-          <DialogContent
-            sx={{
-              padding: "0 20px",
-            }}
-          >
-            <StyledTextField
-              name="project-name"
-              label="Project Name"
-              inputRef={projectTitleInputRef}
-              required={true}
-            />
-            {/* <StyledTextField name="member-list" label="Members' emails" /> */}
-          </DialogContent>
-          <DialogActions>
-            <Button
-              type="submit"
-              sx={{
-                fontSize: "0.9rem",
-                fontWeight: "600",
-                margin: "5px",
-                backgroundColor: "primary.main",
-                color: "white.main",
-                "&:hover": {
-                  backgroundColor: "primary.main",
-                  color: "white.main",
-                },
-              }}
-            >
-              Create
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-      <Box
-        sx={{
-          position: "fixed",
-          right: "5%",
-          bottom: "5%",
-        }}
-      >
-        <Fab
-          variant="extended"
-          sx={{
-            backgroundColor: "primary.main",
-            color: "white.main",
-            transition: "all 200ms ease-in-out",
-            "&:hover": {
-              backgroundColor: "primary.main",
-              color: "white.main",
-              transform: "scale(1.05)",
-            },
-          }}
-          onClick={() => setNewProjectDialogShow(true)}
-        >
-          <Add sx={{ fontSize: "2rem", fontWeight: "inherit" }} />
-          <Typography
-            sx={{
-              margin: "0 10px",
-              textTransform: "none",
-              fontSize: "1.2rem",
-            }}
-          >
-            New Project
-          </Typography>
-        </Fab>
       </Box>
     </Box>
   );

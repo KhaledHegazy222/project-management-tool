@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { FormEvent, useCallback, useEffect, useRef } from "react";
 import {
   Grid,
   Typography,
@@ -7,6 +7,14 @@ import {
   ListItemButton,
   Divider,
   Collapse,
+  Box,
+  Fab,
+  Dialog,
+  DialogTitle,
+  IconButton,
+  DialogContent,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import Navbar from "./Navbar";
 
@@ -15,46 +23,67 @@ import {
   ExpandLess,
   People,
   Assignment,
-  Settings,
   Close,
+  Add,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import Boards from "./Boards";
 import Members from "./Members";
 import { useAuth } from "@/contexts/AuthContext";
 import { axiosServer } from "@/services";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import { StyledTextField } from "./Boards.styled";
 
 type projectType = {
   id: string;
   title: string;
   opened: boolean;
 };
-const projectsInitialValue: projectType[] = [
-  {
-    id: "1",
-    title: "Project 1",
-    opened: false,
-  },
-  {
-    id: "2",
-    title: "Project 2",
-    opened: false,
-  },
-  {
-    id: "3",
-    title: "Project 3",
-    opened: false,
-  },
-];
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
-  const [projects, setProjects] = useState<projectType[]>(projectsInitialValue);
+  const [projects, setProjects] = useState<projectType[]>([]);
+  const [newProjectDialogShow, setNewProjectDialogShow] =
+    useState<boolean>(false);
+  const projectTitleInputRef = useRef<HTMLInputElement | null>(null);
+  console.log(projects);
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
 
+      try {
+        const project_title = projectTitleInputRef.current?.value;
+        await axiosServer.post(
+          "/project/create",
+          {
+            project_title,
+          },
+          {
+            headers: { Authorization: `Bearer ${auth}` },
+          }
+        );
+        setNewProjectDialogShow(false);
+        setProjects((projects) => [
+          ...projects,
+          {
+            id: project_title,
+            title: project_title,
+            opened: false,
+          } as projectType,
+        ]);
+        toast.success("Project Created Successfully", {
+          autoClose: 2000,
+          position: "top-center",
+        });
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    },
+    [auth]
+  );
   const toggleCollapse = (id: string) => {
     setProjects((projects: projectType[]) => {
       const projectsCopy = [...projects];
@@ -66,20 +95,22 @@ const Dashboard = () => {
       });
     });
   };
+
   const deleteProject = async (id: string) => {
-    await axiosServer.post(
-      `/project/${id}/delete`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${auth}` },
-      }
-    );
+    await axiosServer.delete(`/project/${id}`, {
+      headers: { Authorization: `Bearer ${auth}` },
+    });
 
     toast.success("Project Deleted Successfully", {
       autoClose: 1000,
       position: "top-center",
     });
     setProjects((projects) => projects.filter((project) => project.id !== id));
+
+    const projectID = window.location.href.split("/")[4];
+    if (id === projectID) {
+      navigate("/dashboard");
+    }
   };
 
   useEffect(() => {
@@ -91,9 +122,13 @@ const Dashboard = () => {
         });
         setProjects(
           response.data.map(
-            (project: { project_id: number }): projectType => ({
+            (project: {
+              project_id: number;
+              project_title: string;
+              project_creation_time: string;
+            }): projectType => ({
               id: project.project_id.toString(),
-              title: `project ${project.project_id}`,
+              title: project.project_title,
               opened: false,
             })
           )
@@ -213,6 +248,92 @@ const Dashboard = () => {
           </Routes>
         </Grid>
       </Grid>
+      <Box
+        sx={{
+          position: "fixed",
+          right: "5%",
+          bottom: "5%",
+        }}
+      >
+        <Fab
+          variant="extended"
+          sx={{
+            backgroundColor: "primary.main",
+            color: "white.main",
+            transition: "all 200ms ease-in-out",
+            "&:hover": {
+              backgroundColor: "primary.main",
+              color: "white.main",
+              transform: "scale(1.05)",
+            },
+          }}
+          onClick={() => setNewProjectDialogShow(true)}
+        >
+          <Add sx={{ fontSize: "2rem", fontWeight: "inherit" }} />
+          <Typography
+            sx={{
+              margin: "0 10px",
+              textTransform: "none",
+              fontSize: "1.2rem",
+            }}
+          >
+            New Project
+          </Typography>
+        </Fab>
+      </Box>
+      <Dialog
+        open={newProjectDialogShow}
+        onClose={() => {
+          setNewProjectDialogShow(false);
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          New Project
+          <IconButton onClick={() => setNewProjectDialogShow(false)}>
+            <Close />
+          </IconButton>
+        </DialogTitle>
+
+        <form onSubmit={handleSubmit}>
+          <DialogContent
+            sx={{
+              padding: "0 20px",
+            }}
+          >
+            <StyledTextField
+              name="project-name"
+              label="Project Name"
+              inputRef={projectTitleInputRef}
+              required={true}
+            />
+            {/* <StyledTextField name="member-list" label="Members' emails" /> */}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              type="submit"
+              sx={{
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                margin: "5px",
+                backgroundColor: "primary.main",
+                color: "white.main",
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                  color: "white.main",
+                },
+              }}
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </>
   );
 };
