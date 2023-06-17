@@ -23,4 +23,6 @@ exports.queryList = {
   GET_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name, ps.project_user_state from (select user_id, project_user_state from project_user where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
   GET_REQUEST_PROJECT_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name from (select user_id from project_request where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
 
+  ADD_TASK_QUERY: 'insert into task(project_id, task_title, task_state, task_assignee_id, task_reviewer_id, task_due_date, task_description) values($1, $2, $3, $4, $5, $6, $7)',
+
 };

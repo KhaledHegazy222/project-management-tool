@@ -31,3 +31,18 @@ CREATE TABLE project_request (
   FOREIGN KEY (project_id) REFERENCES project (project_id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES "user" (user_id)
 );
+
+-- Create the 'task' table
+CREATE TABLE task (
+  task_id SERIAL PRIMARY KEY,
+  project_id INT NOT NULL,
+  task_title VARCHAR(255) NOT NULL,
+  task_state VARCHAR(255) NOT NULL,
+  task_assignee_id INT NOT NULL,
+  task_reviewer_id INT,
+  task_due_date DATE,
+  task_description TEXT,
+  FOREIGN KEY (task_assignee_id) REFERENCES "user" (user_id),
+  FOREIGN KEY (task_reviewer_id) REFERENCES "user" (user_id),
+  FOREIGN KEY (project_id) REFERENCES project (project_id) ON DELETE CASCADE
+);
