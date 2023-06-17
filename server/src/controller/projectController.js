@@ -142,3 +142,31 @@ exports.project_member_post = [
     }
   },
 ];
+
+exports.project_member_get = [
+  authHelper.authenticateToken,
+  checkHelper.checkMember,
+  async (req, res) => {
+    try {
+      const { projectId } = req.params;
+
+      // members who accepted invitations
+      const getMembersQuery = queries.queryList.GET_MEMBERS_QUERY;
+      // members who didn't accept invitation yet
+      const getRequestProjectMembersQuery = queries.queryList.GET_REQUEST_PROJECT_MEMBERS_QUERY;
+      const values = [projectId];
+
+      const [queryResp1, queryResp2] = await Promise.all([
+        dbConnection.dbQuery(getMembersQuery, values),
+        dbConnection.dbQuery(getRequestProjectMembersQuery, values),
+      ]);
+
+      return res.status(200).json({
+        accepted: queryResp1.rows,
+        invited: queryResp2.rows,
+      });
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];

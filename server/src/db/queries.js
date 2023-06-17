@@ -21,5 +21,7 @@ exports.queryList = {
 
   ADD_MEMBER_QUERY: 'insert into project_user values($1, $2, $3)',
   GET_MEMBER_QUERY: 'select * from project_user where project_id = $1 and user_id = $2 and project_user_state =  $3',
+  GET_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name, ps.project_user_state from (select user_id, project_user_state from project_user where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
+  GET_REQUEST_PROJECT_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name, ps.project_user_state from (select user_id, project_user_state from project_request where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
 
 };
