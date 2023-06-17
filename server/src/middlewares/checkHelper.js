@@ -4,7 +4,7 @@ const queries = require('../db/queries');
 // eslint-disable-next-line consistent-return
 exports.checkOwner = async (req, res, next) => {
   const { userId } = req;
-  const { projectId } = req.params;
+  const projectId = req.params.projectId ?? req.body.project_id;
 
   if (userId == null || projectId == null) return res.sendStatus(401);
 
