@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const authHelper = require('../middlewares/authHelper');
+const checkHelper = require('../middlewares/checkHelper');
 const dbConnection = require('../db/connection');
 const queries = require('../db/queries');
 
@@ -70,6 +71,57 @@ exports.project_detail_get = [
       const queryResp2 = await dbConnection.dbQuery(getProjectDetailQuery, values2);
 
       return res.status(200).json(queryResp2.rows[0]); // must has one row
+    } catch {
+      return res.status(500);
+    }
+  },
+];
+
+exports.project_member_post = [
+  body('member_mail')
+    .isEmail()
+    .escape()
+    .withMessage('must be email'),
+  body('member_state')
+    .isIn(['REVIEWER', 'ASSIGNEE']),
+  authHelper.authenticateToken,
+  checkHelper.checkOwner,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const { projectId } = req.params;
+      const memberMail = req.body.member_mail;
+      const memberState = req.body.member_state;
+
+      const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
+      const values1 = [memberMail];
+      const queryResp1 = await dbConnection.dbQuery(getUserIdQuery, values1);
+      const memberId = queryResp1.rows[0].user_id;
+
+      const getMemberRequestQuery = queries.queryList.GET_MEMBER_REQUEST_QUERY;
+      const values2 = [projectId, memberId, memberState];
+      const queryResp2 = await dbConnection.dbQuery(getMemberRequestQuery, values2);
+
+      if (queryResp2.rows.length !== 0) {
+        return res.status(400).json({
+          errors: [
+            {
+              type: 'field',
+              value: memberState,
+              msg: 'request already exist',
+              path: 'member_state',
+              location: 'body',
+            },
+          ],
+        });
+      }
+
+      const addMemberRequestQuery = queries.queryList.ADD_MEMBER_REQUEST_QUERY;
+      await dbConnection.dbQuery(addMemberRequestQuery, values2);
+
+      return res.sendStatus(201);
     } catch {
       return res.status(500);
     }
