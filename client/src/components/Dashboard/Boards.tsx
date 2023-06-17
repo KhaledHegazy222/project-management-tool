@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useState } from "react";
+import React, { FormEvent, useCallback, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -13,6 +13,10 @@ import {
 import BoardBody, { boardType } from "./BoardBody";
 import { Add, Close } from "@mui/icons-material";
 import { StyledTextField } from "./Boards.styled";
+import { axiosServer } from "@/services";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 const boards: boardType[] = [
   {
@@ -127,11 +131,35 @@ const boards: boardType[] = [
 ];
 
 const Boards = () => {
+  const { auth } = useAuth();
   const [newProjectDialogShow, setNewProjectDialogShow] =
     useState<boolean>(false);
-  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  }, []);
+  const projectTitleInputRef = useRef<HTMLInputElement | null>(null);
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      try {
+        await axiosServer.post(
+          "/project/create",
+          {
+            project_title: projectTitleInputRef.current?.value,
+          },
+          {
+            headers: { Authorization: `Bearer ${auth}` },
+          }
+        );
+        setNewProjectDialogShow(false);
+        toast.success("Project Created Successfully", {
+          autoClose: 2000,
+          position: "top-center",
+        });
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    },
+    [auth]
+  );
   return (
     <Box>
       <Typography
@@ -174,23 +202,39 @@ const Boards = () => {
           </IconButton>
         </DialogTitle>
 
-        <DialogContent>
-          <form onSubmit={handleSubmit}>
-            <StyledTextField name="project-name" label="Project Name" />
-            <StyledTextField name="member-list" label="Members' emails" />
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button
+        <form onSubmit={handleSubmit}>
+          <DialogContent
             sx={{
-              fontSize: "0.9rem",
-              fontWeight: "600",
-              margin: "5px",
+              padding: "0 20px",
             }}
           >
-            Create
-          </Button>
-        </DialogActions>
+            <StyledTextField
+              name="project-name"
+              label="Project Name"
+              inputRef={projectTitleInputRef}
+              required={true}
+            />
+            {/* <StyledTextField name="member-list" label="Members' emails" /> */}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              type="submit"
+              sx={{
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                margin: "5px",
+                backgroundColor: "primary.main",
+                color: "white.main",
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                  color: "white.main",
+                },
+              }}
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
       <Box
         sx={{

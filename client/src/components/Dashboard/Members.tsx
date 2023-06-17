@@ -1,61 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Grid, Paper, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import MemberCard, { memberType } from "./MemberCard";
-
-const membersList: memberType[] = [
-  {
-    id: "1",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-  {
-    id: "2",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-  {
-    id: "3",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-  {
-    id: "4",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-  {
-    id: "5",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-  {
-    id: "6",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-  {
-    id: "7",
-    src: "/",
-    first_name: "Khaled",
-    last_name: "Leader",
-    bio: "Hello World",
-  },
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { axiosServer } from "@/services";
+import { useParams } from "react-router-dom";
+import { AxiosError } from "axios";
 
 const Members = () => {
+  const { id } = useParams();
+
+  const { auth } = useAuth();
+  const [membersList, setMembersList] = useState<memberType[]>([]);
+
+  useEffect(() => {
+    loadData();
+    async function loadData() {
+      try {
+        const response = await axiosServer.get(`/project/${id}/member`, {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+
+        setMembersList(
+          response.data.accepted.map(
+            ({
+              user_id,
+              first_name,
+              last_name,
+              project_user_state,
+            }: any): memberType => ({
+              id: user_id,
+              src: "/",
+              first_name,
+              last_name,
+              bio: project_user_state,
+            })
+          )
+        );
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+  }, [auth]);
   return (
     <Box sx={{ padding: "0 40px" }}>
       <Typography

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Grid,
   Typography,
@@ -16,11 +16,16 @@ import {
   People,
   Assignment,
   Settings,
+  Close,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Boards from "./Boards";
 import Members from "./Members";
+import { useAuth } from "@/contexts/AuthContext";
+import { axiosServer } from "@/services";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 type projectType = {
   id: string;
@@ -47,7 +52,7 @@ const projectsInitialValue: projectType[] = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
-
+  const { auth } = useAuth();
   const [projects, setProjects] = useState<projectType[]>(projectsInitialValue);
 
   const toggleCollapse = (id: string) => {
@@ -61,6 +66,43 @@ const Dashboard = () => {
       });
     });
   };
+  const deleteProject = async (id: string) => {
+    await axiosServer.post(
+      `/project/${id}/delete`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${auth}` },
+      }
+    );
+
+    toast.success("Project Deleted Successfully", {
+      autoClose: 1000,
+      position: "top-center",
+    });
+    setProjects((projects) => projects.filter((project) => project.id !== id));
+  };
+
+  useEffect(() => {
+    loadData();
+    async function loadData() {
+      try {
+        const response = await axiosServer.get("/project", {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        setProjects(
+          response.data.map(
+            (project: { project_id: number }): projectType => ({
+              id: project.project_id.toString(),
+              title: `project ${project.project_id}`,
+              opened: false,
+            })
+          )
+        );
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+  }, [auth]);
 
   return (
     <>
@@ -140,14 +182,21 @@ const Dashboard = () => {
                           Boards
                         </Typography>
                       </ListItemButton>
-                      <ListItemButton>
-                        <Settings />
+                      <ListItemButton
+                        sx={{
+                          color: "primary.main",
+                        }}
+                        onClick={() => {
+                          deleteProject(project.id);
+                        }}
+                      >
+                        <Close />
                         <Typography
                           sx={{
                             margin: "0 10px",
                           }}
                         >
-                          Project Settings
+                          Delete Project
                         </Typography>
                       </ListItemButton>
                     </List>

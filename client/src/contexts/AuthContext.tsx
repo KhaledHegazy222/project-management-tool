@@ -30,6 +30,8 @@ export const AuthContextProvider = ({
   useEffect(() => {
     if (auth) {
       localStorage.setItem("token", auth);
+    } else {
+      setAuth(localStorage.getItem("token"));
     }
   }, [auth, setAuth]);
 
