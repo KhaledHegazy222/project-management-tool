@@ -76,9 +76,8 @@ const Account = () => {
           };
 
           const response = await axiosServer.post("/login", requestBody);
-
-          
           setAuth(response.data.token);
+          navigate("/dashboard");
         } else {
           const requestBody: signupRequestBodyType = {
             first_name: formData.first_name as string,
@@ -86,7 +85,6 @@ const Account = () => {
             mail: formData.email,
             password: formData.password,
           };
-
           const response = await axiosServer.post("/signup", requestBody);
           navigate("/dashboard");
         }

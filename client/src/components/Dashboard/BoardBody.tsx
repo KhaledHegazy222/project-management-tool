@@ -17,7 +17,12 @@ export type boardType = {
   tasks: taskType[];
 };
 
-const BoardBody = ({ name, color, tasks }: boardType) => {
+const BoardBody = ({
+  name,
+  color,
+  tasks,
+  addButton = false,
+}: boardType & { addButton: boolean }) => {
   return (
     <Box
       sx={{
@@ -45,22 +50,25 @@ const BoardBody = ({ name, color, tasks }: boardType) => {
         </Typography>
       </Box>
       <List>
-        <Paper>
-          <ListItemButton
-            sx={{
-              color: "black.main",
-              borderRadius: "10px",
-              "&:hover": {
-                backgroundColor: "primary.main",
-                color: "white.main",
-              },
-            }}
-          >
-            <Add sx={{ margin: "auto" }} />
-          </ListItemButton>
-        </Paper>
-        {tasks.map((task: taskType) => (
+        {addButton && (
           <Paper>
+            <ListItemButton
+              sx={{
+                color: "black.main",
+                borderRadius: "10px",
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                  color: "white.main",
+                },
+              }}
+            >
+              <Add sx={{ margin: "auto" }} />
+            </ListItemButton>
+          </Paper>
+        )}
+
+        {tasks.map((task: taskType) => (
+          <Paper key={task.name}>
             <ListItem
               sx={{
                 margin: "10px 0",

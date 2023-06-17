@@ -1,11 +1,9 @@
 import React from "react";
 import {
-  Box,
   Grid,
   Typography,
   List,
   ListItem,
-  IconButton,
   ListItemButton,
   Divider,
   Collapse,
@@ -13,11 +11,11 @@ import {
 import Navbar from "./Navbar";
 
 import {
-  AddBox,
   ExpandMore,
   ExpandLess,
   People,
   Assignment,
+  Settings,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
@@ -140,6 +138,16 @@ const Dashboard = () => {
                           }}
                         >
                           Boards
+                        </Typography>
+                      </ListItemButton>
+                      <ListItemButton>
+                        <Settings />
+                        <Typography
+                          sx={{
+                            margin: "0 10px",
+                          }}
+                        >
+                          Project Settings
                         </Typography>
                       </ListItemButton>
                     </List>

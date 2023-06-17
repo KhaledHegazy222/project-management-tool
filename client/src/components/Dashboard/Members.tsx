@@ -71,6 +71,7 @@ const Members = () => {
       <Grid container>
         {membersList.map((member) => (
           <Grid
+            key={member.id}
             item
             xs={3}
             sx={{

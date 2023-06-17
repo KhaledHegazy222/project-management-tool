@@ -1,7 +1,19 @@
-import React from "react";
-import { Box, Fab, Typography } from "@mui/material";
+import React, { FormEvent, useCallback, useState } from "react";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fab,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import BoardBody, { boardType } from "./BoardBody";
-import { Add } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
+import { StyledTextField } from "./Boards.styled";
+
 const boards: boardType[] = [
   {
     name: "New Request",
@@ -115,6 +127,11 @@ const boards: boardType[] = [
 ];
 
 const Boards = () => {
+  const [newProjectDialogShow, setNewProjectDialogShow] =
+    useState<boolean>(false);
+  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  }, []);
   return (
     <Box>
       <Typography
@@ -134,11 +151,47 @@ const Boards = () => {
           overflow: "auto",
         }}
       >
-        {boards.map((board: boardType) => (
-          <BoardBody {...board} />
+        {boards.map((board: boardType, index: number) => (
+          <BoardBody key={board.name} {...board} addButton={index === 0} />
         ))}
       </Box>
+      <Dialog
+        open={newProjectDialogShow}
+        onClose={() => {
+          setNewProjectDialogShow(false);
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          New Project
+          <IconButton onClick={() => setNewProjectDialogShow(false)}>
+            <Close />
+          </IconButton>
+        </DialogTitle>
 
+        <DialogContent>
+          <form onSubmit={handleSubmit}>
+            <StyledTextField name="project-name" label="Project Name" />
+            <StyledTextField name="member-list" label="Members' emails" />
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              margin: "5px",
+            }}
+          >
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Box
         sx={{
           position: "fixed",
@@ -158,6 +211,7 @@ const Boards = () => {
               transform: "scale(1.05)",
             },
           }}
+          onClick={() => setNewProjectDialogShow(true)}
         >
           <Add sx={{ fontSize: "2rem", fontWeight: "inherit" }} />
           <Typography
