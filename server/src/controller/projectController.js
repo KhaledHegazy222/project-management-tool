@@ -55,16 +55,10 @@ exports.project_create_post = [
 
 exports.project_detail_get = [
   authHelper.authenticateToken,
+  checkHelper.checkMember,
   async (req, res) => {
     try {
-      const { userId } = req;
       const { projectId } = req.params;
-
-      const getProjectUserStateQuery = queries.queryList.GET_PROJECT_USER_STATE_QUERY;
-      const values1 = [projectId, userId];
-      const queryResp1 = await dbConnection.dbQuery(getProjectUserStateQuery, values1);
-
-      if (queryResp1.rows.length === 0) return res.sendStatus(403);
 
       const getProjectDetailQuery = queries.queryList.GET_PROJECT_DETAIL_QUERY;
       const values2 = [projectId];
