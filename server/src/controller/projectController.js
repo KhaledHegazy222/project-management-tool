@@ -95,11 +95,13 @@ exports.project_member_post = [
       const memberMail = req.body.member_mail;
       const memberState = req.body.member_state;
 
+      // get member id
       const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
       const values1 = [memberMail];
       const queryResp1 = await dbConnection.dbQuery(getUserIdQuery, values1);
       const memberId = queryResp1.rows[0].user_id;
 
+      // check if request already exist
       const getMemberRequestQuery = queries.queryList.GET_MEMBER_REQUEST_QUERY;
       const values2 = [projectId, memberId, memberState];
       const queryResp2 = await dbConnection.dbQuery(getMemberRequestQuery, values2);
@@ -118,6 +120,25 @@ exports.project_member_post = [
         });
       }
 
+      // check if member already exist
+      const getMemberQuery = queries.queryList.GET_MEMBER_QUERY;
+      const queryResp3 = await dbConnection.dbQuery(getMemberQuery, values2);
+
+      if (queryResp3.rows.length !== 0) {
+        return res.status(400).json({
+          errors: [
+            {
+              type: 'field',
+              value: memberMail,
+              msg: 'member has been assigned to this project before',
+              path: 'member_mail',
+              location: 'body',
+            },
+          ],
+        });
+      }
+
+      // make query
       const addMemberRequestQuery = queries.queryList.ADD_MEMBER_REQUEST_QUERY;
       await dbConnection.dbQuery(addMemberRequestQuery, values2);
 
