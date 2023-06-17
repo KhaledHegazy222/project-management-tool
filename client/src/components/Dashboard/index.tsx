@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useRef } from "react";
+import React, { FC, FormEvent, useCallback, useEffect, useRef } from "react";
 import {
   Grid,
   Typography,
@@ -35,6 +35,7 @@ import { axiosServer } from "@/services";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { StyledTextField } from "./Boards.styled";
+import WithAuth from "@/HOCs/WithAuth";
 
 type projectType = {
   id: string;
@@ -338,4 +339,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default WithAuth(Dashboard) ;
