@@ -67,6 +67,7 @@ exports.project_detail_get = [
       const getProjectDetailQuery = queries.queryList.GET_PROJECT_DETAIL_QUERY;
       const values2 = [projectId];
       const queryResp2 = await dbConnection.dbQuery(getProjectDetailQuery, values2);
+      if (queryResp2.rows.length === 0) return res.sendStatus(404);
 
       return res.status(200).json(queryResp2.rows[0]); // must has one row
     } catch {
