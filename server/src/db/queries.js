@@ -34,4 +34,7 @@ exports.queryList = {
 
   GET_TASK_UPDATERS_QUERY: 'select pu.user_id, t.task_assignee_id, t.task_reviewer_id from (select task_assignee_id, task_reviewer_id, project_id from task where task_id = $1) as t inner join project_user as pu on pu.project_id = t.project_id and pu.project_user_state = \'OWNER\'',
 
+  ADD_COMMENT_QUERY: 'insert into comment (comment_author_id, comment_task_id, comment_content) values($1, $2, $3)',
+
+  GET_TASK_COMMENTS_QUERY: 'select u.first_name, u.last_name, c.creation_time, c.comment_content from (select * from comment where comment_task_id = $1) as c inner join "user" as u on u.user_id = c.comment_author_id order by creation_time',
 };

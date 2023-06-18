@@ -46,3 +46,13 @@ CREATE TABLE task (
   FOREIGN KEY (task_reviewer_id) REFERENCES "user" (user_id),
   FOREIGN KEY (project_id) REFERENCES project (project_id) ON DELETE CASCADE
 );
+
+-- Create the 'comment' table
+CREATE TABLE comment (
+  creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  comment_author_id INT NOT NULL,
+  comment_task_id INT NOT NULL,
+  comment_content TEXT,
+  FOREIGN KEY (comment_author_id) REFERENCES "user" (user_id),
+  FOREIGN KEY (comment_task_id) REFERENCES task (task_id) ON DELETE CASCADE
+);

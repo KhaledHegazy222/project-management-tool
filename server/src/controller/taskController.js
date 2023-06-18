@@ -224,3 +224,48 @@ exports.task_update_patch = [
     }
   },
 ];
+
+exports.task_comment_create_post = [
+  body('comment_content')
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage('comment content must be specified'),
+  authHelper.authenticateToken,
+  checkHelper.checkAccessTaskUpdate,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const { userId } = req;
+      const { taskId } = req.params;
+      const commentContent = req.body.comment_content;
+
+      const addCommentQuery = queries.queryList.ADD_COMMENT_QUERY;
+      const values = [userId, taskId, commentContent];
+      await dbConnection.dbQuery(addCommentQuery, values);
+
+      return res.status(201).json({ comment_content: commentContent });
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.task_comment_list_get = [
+  authHelper.authenticateToken,
+  checkHelper.checkAccessTaskUpdate,
+  async (req, res) => {
+    try {
+      const { taskId } = req.params;
+
+      const getTaskCommentsQuery = queries.queryList.GET_TASK_COMMENTS_QUERY;
+      const values = [taskId];
+      const queryResp = await dbConnection.dbQuery(getTaskCommentsQuery, values);
+
+      return res.status(200).json(queryResp.rows);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
