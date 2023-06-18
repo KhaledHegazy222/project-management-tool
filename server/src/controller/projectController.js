@@ -192,7 +192,7 @@ exports.project_member_get = [
   },
 ];
 
-exports.project_delete_post = [
+exports.project_delete = [
   authHelper.authenticateToken,
   checkHelper.checkOwner,
   async (req, res) => {
