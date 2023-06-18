@@ -50,14 +50,14 @@ const Dashboard = () => {
   const [newProjectDialogShow, setNewProjectDialogShow] =
     useState<boolean>(false);
   const projectTitleInputRef = useRef<HTMLInputElement | null>(null);
-  console.log(projects);
+
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       try {
         const project_title = projectTitleInputRef.current?.value;
-        await axiosServer.post(
+        const response = await axiosServer.post(
           "/project/create",
           {
             project_title,
@@ -66,12 +66,13 @@ const Dashboard = () => {
             headers: { Authorization: `Bearer ${auth}` },
           }
         );
+
         setNewProjectDialogShow(false);
         setProjects((projects) => [
           ...projects,
           {
-            id: project_title,
-            title: project_title,
+            id: response.data[0].project_id,
+            title: response.data[0].project_title,
             opened: false,
           } as projectType,
         ]);
@@ -96,7 +97,6 @@ const Dashboard = () => {
       });
     });
   };
-
   const deleteProject = async (id: string) => {
     await axiosServer.delete(`/project/${id}`, {
       headers: { Authorization: `Bearer ${auth}` },
@@ -339,4 +339,4 @@ const Dashboard = () => {
   );
 };
 
-export default WithAuth(Dashboard) ;
+export default WithAuth(Dashboard);

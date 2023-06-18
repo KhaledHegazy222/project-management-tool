@@ -7,10 +7,10 @@ export type memberType = {
   src: string;
   first_name: string;
   last_name: string;
-  bio: string;
+  role: string;
 };
 
-const MemberCard = ({ id, src, first_name, last_name, bio }: memberType) => {
+const MemberCard = ({ id, src, first_name, last_name, role }: memberType) => {
   return (
     <Card
       sx={{
@@ -36,7 +36,7 @@ const MemberCard = ({ id, src, first_name, last_name, bio }: memberType) => {
             fontSize: "0.8rem",
             textAlign: "center",
           }}
-        >{`${bio}`}</Typography>
+        >{`${role}`}</Typography>
       </CardContent>
     </Card>
   );

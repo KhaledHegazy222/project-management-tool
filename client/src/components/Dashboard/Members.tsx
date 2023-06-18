@@ -51,7 +51,7 @@ const Members = () => {
           },
           { headers: { Authorization: `Bearer ${auth}` } }
         );
-        console.log(response.data);
+        setAddMembersDialogShow(false);
       } catch (error) {
         console.log((error as AxiosError).response?.data);
       }
@@ -78,7 +78,7 @@ const Members = () => {
               src: "/",
               first_name,
               last_name,
-              bio: project_user_state,
+              role: project_user_state,
             })
           )
         );

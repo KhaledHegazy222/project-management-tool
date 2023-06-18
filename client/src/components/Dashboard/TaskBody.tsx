@@ -12,38 +12,103 @@ import {
 } from "@mui/material";
 import { AttachFile, Comment, MoreHoriz } from "@mui/icons-material";
 import avatarImage from "@/assets/images/avatar.avif";
-import { useState } from "react";
-
-type labelType = {
-  name: string;
-  color: string;
-};
+import {
+  FormEvent,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { axiosServer } from "@/services";
+import { AxiosError } from "axios";
+import { useParams } from "react-router-dom";
+import useProjectMembers from "@/Hooks/useProjectMembers";
 
 export type taskType = {
+  id: number;
+  projectId: number;
   name: string;
   description?: string;
-  state: "Todo" | "Pending" | "On Review" | "Completed";
-  labels: labelType[];
-  assignee: string;
-  reviewer: string;
+  state: "New Request" | "In Progress" | "On Review" | "Complete";
+  assignee: number;
+  reviewer: number;
   deadLine: string;
-  comments: string[];
 };
+
+type commentType = {
+  first_name: string;
+  last_name: string;
+  creation_time: string;
+  comment_content: string;
+};
+
 const TaskBody = ({
+  id,
+  projectId,
   name,
   description,
   state,
-  labels,
   assignee,
   reviewer,
   deadLine,
-  comments,
 }: taskType) => {
+  const { auth } = useAuth();
+  const [loading, members] = useProjectMembers(projectId);
+  const commentInputRef = useRef<HTMLInputElement | null>(null);
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      try {
+        await axiosServer.post(
+          `/task/${id}/comment/create`,
+          {
+            comment_content: commentInputRef.current?.value,
+          },
+          { headers: { Authorization: `Bearer ${auth}` } }
+        );
+        setComments(
+          (comments: commentType[]): commentType[] =>
+            [
+              ...comments,
+              {
+                first_name: "Khaled",
+                last_name: "leader",
+                creation_time: Date.now().toString(),
+                comment_content: commentInputRef.current?.value,
+              },
+            ] as commentType[]
+        );
+
+        (commentInputRef.current as HTMLInputElement).value = "";
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    },
+    [auth, id]
+  );
+
   const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
+  const [comments, setComments] = useState<commentType[]>([]);
+
+  useEffect(() => {
+    loadComments();
+    async function loadComments() {
+      try {
+        const response = await axiosServer.get(`/task/${id}/comment`, {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        setComments(response.data);
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+  }, [auth, id]);
   return (
     <>
       <Box
-        sx={{ padding: "10px 5px", cursor: "pointer" }}
+        sx={{ padding: "10px 5px", cursor: "pointer", width: "100%" }}
         onClick={() => setTaskDialogShow(true)}
       >
         <Box
@@ -100,24 +165,23 @@ const TaskBody = ({
               fontSize: "1.2rem",
             }}
           >
-            {!comments.length && (
-              <IconButton
+            <IconButton
+              sx={{
+                fontSize: "inherit",
+                aspectRatio: "1 / 1",
+                padding: "3px",
+              }}
+            >
+              <Comment
                 sx={{
                   fontSize: "inherit",
-                  aspectRatio: "1 / 1",
-                  padding: "3px",
+                  margin: "0 5px",
                 }}
-              >
-                <Comment
-                  sx={{
-                    fontSize: "inherit",
-                    margin: "0 5px",
-                  }}
-                />
-                {comments.length}
-              </IconButton>
-            )}
-            {!comments.length && (
+              />
+              {comments.length}
+            </IconButton>
+
+            {/* {!!comments.length && (
               <IconButton
                 sx={{
                   fontSize: "inherit",
@@ -133,7 +197,7 @@ const TaskBody = ({
                 />
                 {comments.length}
               </IconButton>
-            )}
+            )} */}
           </Box>
         </Box>
       </Box>
@@ -178,6 +242,52 @@ const TaskBody = ({
         </DialogTitle>
         <Divider variant="middle" />
         <DialogContent>
+          <Box sx={{ display: "flex", gap: "20px", margin: "20px 0" }}>
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: "800",
+                }}
+              >
+                Assignee
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                <Avatar />
+                <Typography>{`${
+                  members.find((member) => parseInt(member.id) === assignee)
+                    ?.first_name
+                } ${
+                  members.find((member) => parseInt(member.id) === assignee)
+                    ?.last_name
+                }`}</Typography>
+              </Box>
+            </Box>
+
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: "800",
+                }}
+              >
+                Reviewer
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                <Avatar />
+                <Typography>
+                  {`${
+                    members.find((member) => parseInt(member.id) === reviewer)
+                      ?.first_name
+                  } ${
+                    members.find((member) => parseInt(member.id) === reviewer)
+                      ?.last_name
+                  }`}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
           <Typography
             variant="h6"
             sx={{ marginBottom: "20px", fontWeight: "700" }}
@@ -191,12 +301,58 @@ const TaskBody = ({
             }}
           >
             <Avatar src="#" alt="User" />
-            <TextField
-              variant="filled"
-              placeholder="Write a comment..."
-              sx={{ flex: "1", margin: "0 10px" }}
-            />
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                width: "100%",
+                margin: "10px",
+              }}
+            >
+              <TextField
+                variant="filled"
+                placeholder="Write a comment..."
+                sx={{
+                  width: "100%",
+                }}
+                inputRef={commentInputRef}
+              />
+            </form>
           </Box>
+          {comments.reverse().map(
+            (comment: commentType): JSX.Element => (
+              <Box
+                key={comment.creation_time}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Avatar src="#" alt={comment.first_name} />
+                <Box
+                  sx={{
+                    backgroundColor: "#eee",
+                    flex: "1",
+                    margin: "10px",
+                    padding: "10px",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "primary.main",
+                      textTransform: "capitalize",
+                      fontWeight: "700",
+                      fontSize: "1rem",
+                    }}
+                  >
+                    {comment.first_name} {comment.last_name}
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.9rem" }}>
+                    {comment.comment_content}
+                  </Typography>
+                </Box>
+              </Box>
+            )
+          )}
         </DialogContent>
       </Dialog>
     </>
