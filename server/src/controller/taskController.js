@@ -9,7 +9,7 @@ exports.task_list_get = [
   // eslint-disable-next-line consistent-return
   async (req, res, next) => {
     try {
-      const projectId = req.body.project_id;
+      const { projectId } = req.params;
 
       const getProjectTasksQuery = queries.queryList.GET_PROJECT_TASKS_QUERY;
       const values = [projectId];
@@ -36,6 +36,7 @@ exports.task_detail_get = [
       const getTaskDetailQuery = queries.queryList.GET_TASK_DETAIL_QUERY;
       const values = [taskId];
       const queryResp = await dbConnection.dbQuery(getTaskDetailQuery, values);
+      if (queryResp.rows.length === 0) return res.sendStatus(404);
       const task = queryResp.rows[0]; // must have length = 1
 
       req.task = task;
@@ -175,7 +176,7 @@ exports.task_delete = [
       const getTaskDetailProjectQuery = queries.queryList.GET_TASK_DETAIL_PROJECT_QUERY;
       const values = [taskId];
       const queryResp = await dbConnection.dbQuery(getTaskDetailProjectQuery, values);
-
+      if (queryResp.rows.length === 0) return res.sendStatus(404);
       req.projectId = queryResp.rows[0].project_id; // must have length = 1
 
       next();
