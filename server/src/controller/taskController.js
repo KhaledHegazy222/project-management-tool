@@ -11,6 +11,8 @@ exports.task_list_get = [
     try {
       const { projectId } = req.params;
 
+      if (!(/^[0-9]+$/.test(projectId))) return res.sendStatus(400);
+
       const getProjectTasksQuery = queries.queryList.GET_PROJECT_TASKS_QUERY;
       const values = [projectId];
       const queryResp = await dbConnection.dbQuery(getProjectTasksQuery, values);
@@ -32,6 +34,8 @@ exports.task_detail_get = [
   async (req, res, next) => {
     try {
       const { taskId } = req.params;
+
+      if (!(/^[0-9]+$/.test(taskId))) return res.sendStatus(400);
 
       const getTaskDetailQuery = queries.queryList.GET_TASK_DETAIL_QUERY;
       const values = [taskId];
@@ -172,6 +176,8 @@ exports.task_delete = [
   async (req, res, next) => {
     try {
       const { taskId } = req.params;
+
+      if (!(/^[0-9]+$/.test(taskId))) return res.sendStatus(400);
 
       const getTaskDetailProjectQuery = queries.queryList.GET_TASK_DETAIL_PROJECT_QUERY;
       const values = [taskId];

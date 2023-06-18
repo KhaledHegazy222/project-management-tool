@@ -1,3 +1,4 @@
+const { body, validationResult } = require('express-validator');
 const authHelper = require('../middlewares/authHelper');
 const dbConnection = require('../db/connection');
 const queries = require('../db/queries');
@@ -20,8 +21,15 @@ exports.user_request_get = [
 ];
 
 exports.user_cancel_post = [
+  body('project_id')
+    .trim()
+    .isInt()
+    .withMessage('Must be a integer number'),
   authHelper.authenticateToken,
   async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
     try {
       const { userId } = req;
       const projectId = req.body.project_id;
@@ -55,8 +63,15 @@ exports.user_cancel_post = [
 ];
 
 exports.user_accept_post = [
+  body('project_id')
+    .trim()
+    .isInt()
+    .withMessage('Must be a integer number'),
   authHelper.authenticateToken,
   async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
     try {
       const { userId } = req;
       const projectId = req.body.project_id;
