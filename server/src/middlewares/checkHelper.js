@@ -6,7 +6,8 @@ exports.checkOwner = async (req, res, next) => {
   const { userId } = req;
   const projectId = req.params.projectId ?? req.body.project_id ?? req.projectId;
 
-  if (userId == null || projectId == null) return res.sendStatus(401);
+  if (userId == null) return res.sendStatus(401);
+  if (projectId == null) return res.sendStatus(403);
 
   const checkProjectOwner = queries.queryList.CHECK_PROJECT_OWNER_QUERY;
   const values = [projectId, userId];
@@ -21,7 +22,8 @@ exports.checkMember = async (req, res, next) => {
   const { userId } = req;
   const projectId = req.params.projectId ?? req.body.project_id ?? req.projectId;
 
-  if (userId == null || projectId == null) return res.sendStatus(401);
+  if (userId == null) return res.sendStatus(401);
+  if (projectId == null) return res.sendStatus(403);
 
   const checkProjectMemberQuery = queries.queryList.CHECK_PROJECT_MEMBER_QUERY;
   const values = [projectId, userId];
@@ -36,7 +38,8 @@ exports.checkAccessTaskUpdate = async (req, res, next) => {
   const { userId } = req;
   const taskId = req.params.taskId ?? req.body.task_id ?? req.taskId;
 
-  if (userId == null || taskId == null) return res.sendStatus(401);
+  if (userId == null) return res.sendStatus(401);
+  if (taskId == null) return res.sendStatus(403);
 
   const getTaskUpdatersQuery = queries.queryList.GET_TASK_UPDATERS_QUERY;
   const values = [taskId];
