@@ -97,3 +97,20 @@ exports.user_login_post = [
     }
   },
 ];
+
+exports.user_details_get = [
+  authHelper.authenticateToken,
+  async (req, res) => {
+    try {
+      const { userId } = req;
+      const getUserByIdQuery = queries.queryList.GET_USER_BY_ID_QUERY;
+      const values = [userId];
+      const queryResp = await dbConnection.dbQuery(getUserByIdQuery, values);
+      if (queryResp.rows.length === 0) return res.sendStatus(404);
+
+      return res.status(200).json(queryResp.rows[0]);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
