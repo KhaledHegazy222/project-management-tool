@@ -9,7 +9,7 @@ exports.task_list_get = [
   // eslint-disable-next-line consistent-return
   async (req, res, next) => {
     try {
-      const projectId = req.body.project_id;
+      const { projectId } = req.params;
 
       const getProjectTasksQuery = queries.queryList.GET_PROJECT_TASKS_QUERY;
       const values = [projectId];
