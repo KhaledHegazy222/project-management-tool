@@ -4,6 +4,52 @@ const checkHelper = require('../middlewares/checkHelper');
 const dbConnection = require('../db/connection');
 const queries = require('../db/queries');
 
+exports.task_list_get = [
+  authHelper.authenticateToken,
+  // eslint-disable-next-line consistent-return
+  async (req, res, next) => {
+    try {
+      const projectId = req.body.project_id;
+
+      const getProjectTasksQuery = queries.queryList.GET_PROJECT_TASKS_QUERY;
+      const values = [projectId];
+      const queryResp = await dbConnection.dbQuery(getProjectTasksQuery, values);
+
+      req.tasks = queryResp.rows;
+
+      next();
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+  checkHelper.checkMember,
+  (req, res) => res.status(200).json(req.tasks),
+];
+
+exports.task_detail_get = [
+  authHelper.authenticateToken,
+  // eslint-disable-next-line consistent-return
+  async (req, res, next) => {
+    try {
+      const { taskId } = req.params;
+
+      const getTaskDetailQuery = queries.queryList.GET_TASK_DETAIL_QUERY;
+      const values = [taskId];
+      const queryResp = await dbConnection.dbQuery(getTaskDetailQuery, values);
+      const task = queryResp.rows[0]; // must have length = 1
+
+      req.task = task;
+      req.projectId = task.project_id;
+
+      next();
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+  checkHelper.checkMember,
+  (req, res) => res.status(200).json(req.task),
+];
+
 exports.task_create_post = [
   body('project_id')
     .trim()
@@ -84,21 +130,23 @@ exports.task_create_post = [
         }
       }
 
-      // check due date to be today or in the coming days
-      const today = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
-      const dueDate = `${taskDueDate.getFullYear()}-${taskDueDate.getMonth()}-${taskDueDate.getDate()}`;
-      if (dueDate < today) {
-        return res.status(400).json({
-          errors: [
-            {
-              type: 'field',
-              value: taskDueDate,
-              msg: 'task due date must be in the future',
-              path: 'task_due_date',
-              location: 'body',
-            },
-          ],
-        });
+      if (taskDueDate != null) {
+        // check due date to be today or in the coming days
+        const today = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
+        const dueDate = `${taskDueDate.getFullYear()}-${taskDueDate.getMonth()}-${taskDueDate.getDate()}`;
+        if (dueDate < today) {
+          return res.status(400).json({
+            errors: [
+              {
+                type: 'field',
+                value: taskDueDate,
+                msg: 'task due date must be in the future',
+                path: 'task_due_date',
+                location: 'body',
+              },
+            ],
+          });
+        }
       }
 
       const addTaskQuery = queries.queryList.ADD_TASK_QUERY;
@@ -106,7 +154,116 @@ exports.task_create_post = [
         taskDueDate, taskDescription];
       await dbConnection.dbQuery(addTaskQuery, values3);
 
-      return res.sendStatus(201);
+      // get the inserted data
+      const queryResp3 = await dbConnection.dbQuery(
+        queries.queryList.GET_LAST_INSERTED_TASK_DETAIL_QUERY,
+      );
+      return res.status(201).json(queryResp3.rows);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.task_delete = [
+  authHelper.authenticateToken,
+  // eslint-disable-next-line consistent-return
+  async (req, res, next) => {
+    try {
+      const { taskId } = req.params;
+
+      const getTaskDetailProjectQuery = queries.queryList.GET_TASK_DETAIL_PROJECT_QUERY;
+      const values = [taskId];
+      const queryResp = await dbConnection.dbQuery(getTaskDetailProjectQuery, values);
+
+      req.projectId = queryResp.rows[0].project_id; // must have length = 1
+
+      next();
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+  checkHelper.checkOwner,
+  async (req, res) => {
+    try {
+      const { taskId } = req.params;
+
+      const deleteTaskQuery = queries.queryList.DELETE_TASK_QUERY;
+      const values = [taskId];
+      await dbConnection.dbQuery(deleteTaskQuery, values);
+
+      return res.sendStatus(200);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.task_update_patch = [
+  body('task_state')
+    .isIn(['New Request', 'In Progress', 'On Review', 'Complete'])
+    .escape()
+    .withMessage('Invalid value'),
+  authHelper.authenticateToken,
+  checkHelper.checkAccessTaskUpdate,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const { taskId } = req.params;
+      const newState = req.body.task_state;
+
+      const changeTaskState = queries.queryList.CHANGE_TASK_STATE_QUERY;
+      const values = [newState, taskId];
+      await dbConnection.dbQuery(changeTaskState, values);
+
+      return res.sendStatus(200);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.task_comment_create_post = [
+  body('comment_content')
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage('comment content must be specified'),
+  authHelper.authenticateToken,
+  checkHelper.checkAccessTaskUpdate,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const { userId } = req;
+      const { taskId } = req.params;
+      const commentContent = req.body.comment_content;
+
+      const addCommentQuery = queries.queryList.ADD_COMMENT_QUERY;
+      const values = [userId, taskId, commentContent];
+      await dbConnection.dbQuery(addCommentQuery, values);
+
+      return res.status(201).json({ comment_content: commentContent });
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.task_comment_list_get = [
+  authHelper.authenticateToken,
+  checkHelper.checkAccessTaskUpdate,
+  async (req, res) => {
+    try {
+      const { taskId } = req.params;
+
+      const getTaskCommentsQuery = queries.queryList.GET_TASK_COMMENTS_QUERY;
+      const values = [taskId];
+      const queryResp = await dbConnection.dbQuery(getTaskCommentsQuery, values);
+
+      return res.status(200).json(queryResp.rows);
     } catch {
       return res.sendStatus(500);
     }
