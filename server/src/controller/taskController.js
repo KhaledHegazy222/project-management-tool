@@ -84,21 +84,23 @@ exports.task_create_post = [
         }
       }
 
-      // check due date to be today or in the coming days
-      const today = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
-      const dueDate = `${taskDueDate.getFullYear()}-${taskDueDate.getMonth()}-${taskDueDate.getDate()}`;
-      if (dueDate < today) {
-        return res.status(400).json({
-          errors: [
-            {
-              type: 'field',
-              value: taskDueDate,
-              msg: 'task due date must be in the future',
-              path: 'task_due_date',
-              location: 'body',
-            },
-          ],
-        });
+      if (taskDueDate != null) {
+        // check due date to be today or in the coming days
+        const today = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
+        const dueDate = `${taskDueDate.getFullYear()}-${taskDueDate.getMonth()}-${taskDueDate.getDate()}`;
+        if (dueDate < today) {
+          return res.status(400).json({
+            errors: [
+              {
+                type: 'field',
+                value: taskDueDate,
+                msg: 'task due date must be in the future',
+                path: 'task_due_date',
+                location: 'body',
+              },
+            ],
+          });
+        }
       }
 
       const addTaskQuery = queries.queryList.ADD_TASK_QUERY;
@@ -106,7 +108,11 @@ exports.task_create_post = [
         taskDueDate, taskDescription];
       await dbConnection.dbQuery(addTaskQuery, values3);
 
-      return res.sendStatus(201);
+      // get the inserted data
+      const queryResp3 = await dbConnection.dbQuery(
+        queries.queryList.GET_LAST_INSERTED_TASK_DETAIL_QUERY,
+      );
+      return res.status(201).json(queryResp3.rows);
     } catch {
       return res.sendStatus(500);
     }

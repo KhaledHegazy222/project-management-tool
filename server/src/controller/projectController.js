@@ -45,7 +45,11 @@ exports.project_create_post = [
       await dbConnection.dbQuery(addProjectUserRelationshipQuery, values2);
       await dbConnection.dbQuery('COMMIT');
 
-      return res.sendStatus(201);
+      // get the inserted data
+      const queryResp = await dbConnection.dbQuery(
+        queries.queryList.GET_LAST_INSERTED_PROJECT_DETAIL_QUERY,
+      );
+      return res.status(201).json(queryResp.rows);
     } catch {
       await dbConnection.dbQuery('ROLLBACK');
       return res.status(500);
