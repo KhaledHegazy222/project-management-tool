@@ -1563,6 +1563,11 @@ react-is@^18.2.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
+react-multi-email@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/react-multi-email/-/react-multi-email-1.0.9.tgz#8e07e656a5345f610909d5586c44033315efea30"
+  integrity sha512-DZSDS9lPENzzZa2VnwfNCoKVTOuo9wHezhIUPY8xxNG6W/YXT3uuSJ4I8ml1n5ZOZeiajmhIfPMy91SZvFEe1w==
+
 react-router-dom@6:
   version "6.13.0"
   resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.13.0.tgz#6651f456bb2af42ef14f6880123b1f575539e81f"
