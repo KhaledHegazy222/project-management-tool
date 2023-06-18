@@ -30,3 +30,21 @@ exports.checkMember = async (req, res, next) => {
   if (queryResp.rows.length === 0) return res.sendStatus(403);
   next();
 };
+
+// eslint-disable-next-line consistent-return
+exports.checkAccessTaskUpdate = async (req, res, next) => {
+  const { userId } = req;
+  const taskId = req.params.taskId ?? req.body.task_id ?? req.taskId;
+
+  if (userId == null || taskId == null) return res.sendStatus(401);
+
+  const getTaskUpdatersQuery = queries.queryList.GET_TASK_UPDATERS_QUERY;
+  const values = [taskId];
+  const queryResp1 = await dbConnection.dbQuery(getTaskUpdatersQuery, values);
+  const updaters = queryResp1.rows[0];
+
+  if (Number(userId) !== updaters.user_id && Number(userId) !== updaters.task_assignee_id
+    && Number(userId) !== updaters.task_reviewer_id) return res.sendStatus(403);
+
+  next();
+};
