@@ -44,6 +44,7 @@ exports.checkAccessTaskUpdate = async (req, res, next) => {
   const getTaskUpdatersQuery = queries.queryList.GET_TASK_UPDATERS_QUERY;
   const values = [taskId];
   const queryResp1 = await dbConnection.dbQuery(getTaskUpdatersQuery, values);
+  if (queryResp1.rows.length === 0) return res.sendStatus(404);
   const updaters = queryResp1.rows[0];
 
   if (Number(userId) !== updaters.user_id && Number(userId) !== updaters.task_assignee_id
