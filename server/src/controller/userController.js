@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { body, validationResult } = require('express-validator');
 const authHelper = require('../middlewares/authHelper');
-const verificationMailHelper = require('../middlewares/verificationMailHelper');
+const mailHelper = require('../middlewares/mailHelper');
 const dbConnection = require('../db/connection');
 const queries = require('../db/queries');
 
@@ -74,7 +74,7 @@ exports.user_signup_post = [
       return res.sendStatus(500);
     }
   },
-  verificationMailHelper,
+  mailHelper.sendVerificationMail,
   (req, res) => res.sendStatus(201),
 ];
 
@@ -164,6 +164,84 @@ exports.user_send_verification_post = [
     .isEmail()
     .escape()
     .withMessage('must be email'),
-  verificationMailHelper,
+  mailHelper.sendVerificationMail,
   (req, res) => res.sendStatus(200),
+];
+
+exports.user_send_reset_password_post = [
+  body('mail')
+    .isEmail()
+    .escape()
+    .withMessage('must be email'),
+  // eslint-disable-next-line consistent-return
+  async (req, res, next) => {
+    try {
+      const { mail } = req.body;
+
+      const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
+      const values1 = [mail];
+      const queryResp1 = await dbConnection.dbQuery(getUserIdQuery, values1);
+      if (queryResp1.rows.length === 0) return res.status(400).json({ errors: [{ msg: 'mail is not exist' }] });
+
+      const userId = queryResp1.rows[0].user_id;
+
+      const getResetId = queries.queryList.GET_REST_ID_QUERY;
+      const values2 = [userId];
+      const queryResp2 = await dbConnection.dbQuery(getResetId, values2);
+      if (queryResp2.rows.length === 0) {
+        const resetId = uuidv4();
+        const addResetIdQuery = queries.queryList.ADD_REST_ID_QUERY;
+        const values3 = [userId, resetId];
+        await dbConnection.dbQuery(addResetIdQuery, values3);
+        req.resetId = resetId;
+      } else {
+        req.resetId = queryResp2.rows[0].reset_id;
+      }
+
+      next();
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+  mailHelper.sendResetPasswordMail,
+  (req, res) => res.sendStatus(200),
+];
+
+exports.user_reset_password_post = [
+  body('password')
+    .isLength({ min: 6 })
+    .escape()
+    .withMessage('password must be at least 6 length'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const { resetId } = req.params;
+      const { password } = req.body;
+
+      const getUserIdQuery = queries.queryList.GET_REST_USER_ID_QUERY;
+      const values1 = [resetId];
+      const queryResp1 = await dbConnection.dbQuery(getUserIdQuery, values1);
+      if (queryResp1.rows.length === 0) return res.sendStatus(400);
+
+      const userId = queryResp1.rows[0].user_id;
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await dbConnection.dbQuery('BEGIN');
+      const updateUserPasswordQuery = queries.queryList.UPDATE_USER_PASSWORD;
+      const values2 = [hashedPassword, userId];
+      await dbConnection.dbQuery(updateUserPasswordQuery, values2);
+
+      const deleteResetIdQuery = queries.queryList.DELETE_REST_ID_QUERY;
+      const values3 = [userId];
+      await dbConnection.dbQuery(deleteResetIdQuery, values3);
+      await dbConnection.dbQuery('COMMIT');
+
+      return res.sendStatus(200);
+    } catch {
+      await dbConnection.dbQuery('ROLLBACK');
+      return res.sendStatus(500);
+    }
+  },
 ];

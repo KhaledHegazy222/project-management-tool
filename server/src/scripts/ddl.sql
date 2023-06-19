@@ -5,6 +5,7 @@ drop table project_request;
 drop table project_user;
 drop table project;
 drop table verification;
+drop table reset_password;
 drop table "user";
 
 -- clear all tables
@@ -14,6 +15,7 @@ delete from project_request where true;
 delete from project_user where true;
 delete from project where true;
 delete from verification where true;
+delete from reset_password where true;
 delete from "user" where true;
 
 -- Create the 'user' table
@@ -31,6 +33,13 @@ CREATE TABLE "user" (
 CREATE TABLE verification (
   user_id INT NOT NULL,
   verification_id VARCHAR(255) NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES "user" (user_id)
+);
+
+-- Create the 'reset_password' table
+CREATE TABLE reset_password (
+  user_id INT NOT NULL,
+  reset_id VARCHAR(255) NOT NULL,
   FOREIGN KEY (user_id) REFERENCES "user" (user_id)
 );
 

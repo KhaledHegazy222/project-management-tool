@@ -1,5 +1,6 @@
 exports.queryList = {
   CREATE_USER_QUERY: 'insert into "user"(mail, password, first_name, last_name) values ($1, $2, $3, $4)',
+  UPDATE_USER_PASSWORD: 'update "user" set password = $1 where user_id = $2',
   GET_USER_QUERY: 'select * from "user" where mail = $1',
   GET_USER_ID_QUERY: 'select user_id from "user" where mail = $1',
   GET_USER_BY_ID_QUERY: 'select user_id, mail, first_name, last_name from "user" where user_id = $1',
@@ -10,6 +11,11 @@ exports.queryList = {
   GET_UNVERIFIED_USER_ID_QUERY: 'select user_id from verification where verification_id = $1',
   DELETE_USER_VERIFICATION_IDS_QUERY: 'delete from verification where user_id = $1',
   VERIFY_USER_QUERY: 'update "user" set active = true where user_id = $1',
+
+  GET_REST_USER_ID_QUERY: 'select user_id from reset_password where reset_id = $1',
+  GET_REST_ID_QUERY: 'select reset_id from reset_password where user_id = $1',
+  ADD_REST_ID_QUERY: 'insert into reset_password values($1, $2)',
+  DELETE_REST_ID_QUERY: 'delete from reset_password where user_id = $1',
 
   ADD_PROJECT_QUERY: 'insert into project(project_title) values ($1)',
   DELETE_PROJECT_QUERY: 'delete from project where project_id = $1',
