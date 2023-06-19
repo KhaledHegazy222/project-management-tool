@@ -1,11 +1,37 @@
+-- drop all tables
+drop table comment;
+drop table task;
+drop table project_request;
+drop table project_user;
+drop table project;
+drop table verification;
+drop table "user";
+
+-- clear all tables
+delete from comment where true;
+delete from task where true;
+delete from project_request where true;
+delete from project_user where true;
+delete from project where true;
+delete from verification where true;
+delete from "user" where true;
+
 -- Create the 'user' table
 CREATE TABLE "user" (
   user_id SERIAL PRIMARY KEY,
   creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  active BOOL DEFAULT 'false',
   mail VARCHAR(255) UNIQUE NOT NULL CHECK (mail ~ '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'),
   password VARCHAR(255) NOT NULL,
   first_name VARCHAR(255) NOT NULL,
   last_name VARCHAR(255) NOT NULL
+);
+
+-- Create the 'verification' table
+CREATE TABLE verification (
+  user_id INT NOT NULL,
+  verification_id VARCHAR(255) NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES "user" (user_id)
 );
 
 -- Create the 'project' table

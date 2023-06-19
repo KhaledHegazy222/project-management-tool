@@ -21,7 +21,9 @@
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.11.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^4.6.3"
+    "swagger-ui-express": "^4.6.3",
+    "nodemailer": "^6.9.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0 || ^8.2.0",

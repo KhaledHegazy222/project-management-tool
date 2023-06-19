@@ -5,6 +5,12 @@ exports.queryList = {
   GET_USER_BY_ID_QUERY: 'select user_id, mail, first_name, last_name from "user" where user_id = $1',
   GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
 
+  ADD_VERIFICATION_ID_QUERY: 'insert into verification values((SELECT currval(\'user_user_id_seq\')), $1)',
+  GET_VERIFICATION_ID_QUERY: 'select verification_id from verification where user_id = (select user_id from "user" where mail = $1)',
+  GET_UNVERIFIED_USER_ID_QUERY: 'select user_id from verification where verification_id = $1',
+  DELETE_USER_VERIFICATION_IDS_QUERY: 'delete from verification where user_id = $1',
+  VERIFY_USER_QUERY: 'update "user" set active = true where user_id = $1',
+
   ADD_PROJECT_QUERY: 'insert into project(project_title) values ($1)',
   DELETE_PROJECT_QUERY: 'delete from project where project_id = $1',
   ADD_PROJECT_USER_RELATIONSHIP: 'insert into project_user(project_id, user_id, project_user_state) values ((SELECT currval(\'project_project_id_seq\')), $1, \'OWNER\')',
