@@ -46,10 +46,15 @@ type loginRequestBodyType = {
   password: string;
 };
 
+type resetPasswordRequestBodyType = {
+  mail: string;
+};
+
 const Account = () => {
   const navigate: NavigateFunction = useNavigate();
   const { pathname }: Location = useLocation();
   const login: boolean = pathname === "/account/login";
+  const forgetPassword = pathname === "/account/forget-password";
 
   const { setAuth } = useAuth();
 
@@ -83,6 +88,17 @@ const Account = () => {
           const response = await axiosServer.post("/login", requestBody);
           setAuth(response.data.token);
           navigate("/dashboard");
+        } else if (forgetPassword) {
+          const requestBody: resetPasswordRequestBodyType = {
+            mail: formData.email,
+          };
+
+          await axiosServer.post("/reset_password", requestBody);
+          navigate("/");
+          toast.success("Check your email to reset your password", {
+            autoClose: 2000,
+            position: "top-center",
+          });
         } else {
           const requestBody: signupRequestBodyType = {
             first_name: formData.first_name as string,
@@ -105,7 +121,7 @@ const Account = () => {
         }
       }
     },
-    [login, formData]
+    [login, formData, navigate, setAuth]
   );
 
   return (
@@ -239,6 +255,16 @@ const Account = () => {
                   </StyledLink>
 
                   <StyledButton type="submit">Login</StyledButton>
+                </>
+              ) : forgetPassword ? (
+                <>
+                  <StyledTextField
+                    type="email"
+                    label="Email"
+                    name="email"
+                    onChange={handleChange}
+                  />
+                  <StyledButton type="submit">Reset Password</StyledButton>
                 </>
               ) : (
                 <Grid container>

@@ -26,6 +26,12 @@ export const pagesData: pageEntry[] = [
     component: <Account />,
   },
   {
+    title: "Forget Password",
+    path: "/account/forget-password",
+    component: <Account />,
+  },
+
+  {
     title: "Dashboard",
     path: "/dashboard/*",
     component: <Dashboard />,
