@@ -52,7 +52,7 @@ exports.project_create_post = [
       return res.status(201).json(queryResp.rows);
     } catch {
       await dbConnection.dbQuery('ROLLBACK');
-      return res.status(500);
+      return res.sendStatus(500);
     }
   },
 ];
