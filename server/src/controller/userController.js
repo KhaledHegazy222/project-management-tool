@@ -152,7 +152,9 @@ exports.user_verify_post = async (req, res) => {
     await dbConnection.dbQuery(deleteUserVerificationIdsQuery, value2);
     await dbConnection.dbQuery('COMMIT');
 
-    return res.sendStatus(200);
+    return res.status(200).json({
+      token: authHelper.generateAccessToken(userId.toString()),
+    });
   } catch {
     await dbConnection.dbQuery('ROLLBACK');
     return res.sendStatus(500);
