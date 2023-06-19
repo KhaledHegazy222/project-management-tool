@@ -14,6 +14,8 @@ const MemberCard = ({ id, src, first_name, last_name, role }: memberType) => {
   return (
     <Card
       sx={{
+        minWidth: "200px",
+        minHeight: "200px",
         transition: "all 200ms ease-in-out",
         cursor: "pointer",
         "&:hover": {

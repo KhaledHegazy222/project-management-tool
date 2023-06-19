@@ -99,12 +99,18 @@ const Members = () => {
       >
         Members
       </Typography>
-      <Grid container>
+      <Grid
+        container
+        sx={{
+          justifyContent: "center",
+          justifyItems: "center",
+        }}
+      >
         {membersList.map((member) => (
           <Grid
             key={member.id}
             item
-            xs={3}
+            xs="auto"
             sx={{
               padding: "10px",
             }}
@@ -114,14 +120,13 @@ const Members = () => {
         ))}
         <Grid
           item
-          xs={3}
+          xs="auto"
           sx={{
             padding: "10px",
           }}
         >
           <Paper
             sx={{
-              height: "100%",
               transition: "200ms ease-in-out",
               "&:hover": {
                 transform: "scale(1.05)",
@@ -131,6 +136,8 @@ const Members = () => {
             <Button
               onClick={() => setAddMembersDialogShow(true)}
               sx={{
+                minWidth: "200px",
+                minHeight: "200px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

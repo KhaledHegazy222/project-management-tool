@@ -66,6 +66,7 @@ const Features = () => {
           <Typography
             variant="h2"
             sx={{
+              fontSize: matchesMedium ? "4rem" : "2.6rem",
               textAlign: "center",
               fontWeight: "600",
             }}
