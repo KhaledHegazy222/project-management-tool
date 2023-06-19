@@ -54,7 +54,7 @@ exports.sendResetPasswordMail = (req, res, next) => {
   const mailOptions = {
     from: process.env.SENDER_GMAIL,
     to: mail,
-    subject: 'Account Activation - PMT',
+    subject: 'Password Reset - PMT',
     html: `<p>Please click on the following link to reset your password:</p>
     <a href="${process.env.HOME_PAGE_URL}?reset=${resetId}">link</a>`,
   };
