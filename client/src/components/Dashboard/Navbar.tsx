@@ -99,7 +99,13 @@ const Navbar = () => {
   return (
     <>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -132,11 +138,11 @@ const Navbar = () => {
                   color: (theme) => `${theme.palette.white.main}`,
                 }}
               >
-                Ngatur
+                PMT
               </Typography>
             </Link>
           </Box>
-          <Box
+          {/* <Box
             sx={{
               margin: "0 50px",
               flexGrow: 1,
@@ -161,7 +167,7 @@ const Navbar = () => {
                 sx={{ fontSize: "inherit", fontWeight: "inherit" }}
               />
             </StyledNavButton>
-          </Box>
+          </Box> */}
           <Box>
             <IconButton
               onClick={handleClick}

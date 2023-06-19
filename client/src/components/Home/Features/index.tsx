@@ -7,13 +7,13 @@ const featuresList: featureItem[] = [
     icon: <></>,
     title: "Robust Task Creation",
     description:
-      "Ngatur management provides users with a comprehensive set of tools to create, organize, and manage tasks effectively.",
+      "PMT management provides users with a comprehensive set of tools to create, organize, and manage tasks effectively.",
   },
   {
     icon: <></>,
     title: "Collaboration Capabilities",
     description:
-      "Ngatur management gives users the ability to assign tasks and collaborate with others, share task details, and track progress in real time.",
+      "PMT management gives users the ability to assign tasks and collaborate with others, share task details, and track progress in real time.",
   },
   {
     icon: <></>,
@@ -25,7 +25,7 @@ const featuresList: featureItem[] = [
     icon: <></>,
     title: "Reporting and Analytics",
     description:
-      "Ngatur management provides a variety of reporting and analytics options, such as task completion, time on task, team   productivity metrics.",
+      "PMT management provides a variety of reporting and analytics options, such as task completion, time on task, team   productivity metrics.",
   },
   {
     icon: <></>,

@@ -2,8 +2,9 @@ import { Box, Button, Toolbar, Typography } from "@mui/material";
 import { StyledAppBar } from "./AppBar.styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import logo from "@/assets/images/logo100.png";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useMQ from "@/Hooks/useMQ";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navElements: string[] = [
   "Features",
@@ -14,6 +15,7 @@ const navElements: string[] = [
 ];
 const Navbar = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { matchesLarge } = useMQ();
 
   return (
@@ -34,23 +36,33 @@ const Navbar = () => {
             height: "100%",
           }}
         >
-          <img
-            src={logo}
-            alt="Logo"
+          <Link
+            to="/"
             style={{
-              filter: "invert(100%)",
-              height: "40px",
-            }}
-          />
-          <Typography
-            sx={{
-              fontSize: "1.5rem",
-              fontWeight: "700",
-              color: (theme) => `${theme.palette.white.main}`,
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              textDecoration: "none",
             }}
           >
-            Ngatur
-          </Typography>
+            <img
+              src={logo}
+              alt="Logo"
+              style={{
+                filter: "invert(100%)",
+                height: "40px",
+              }}
+            />
+            <Typography
+              sx={{
+                fontSize: "1.5rem",
+                fontWeight: "700",
+                color: (theme) => `${theme.palette.white.main}`,
+              }}
+            >
+              PMT
+            </Typography>
+          </Link>
         </Box>
 
         {matchesLarge && (
@@ -79,8 +91,11 @@ const Navbar = () => {
             ))}
           </Box>
         )}
+
         <Button
-          onClick={() => navigate("/dashboard")}
+          onClick={() =>
+            navigate(user !== null ? "/dashboard" : "/account/signup")
+          }
           sx={{
             backgroundColor: "white.main",
             color: "primary.main",
@@ -108,7 +123,7 @@ const Navbar = () => {
               textTransform: "none",
             }}
           >
-            Go to your Dashboard
+            {user !== null ? "Go to your Dashboard" : "Get Started"}
           </Typography>
         </Button>
       </Toolbar>

@@ -18,6 +18,8 @@ import accountBackground from "@/assets/images/accountBackground.jpg";
 import { axiosServer } from "@/services";
 import { AxiosError } from "axios";
 import { useAuth } from "@/contexts/AuthContext";
+import useMQ from "@/Hooks/useMQ";
+import { toast } from "react-toastify";
 
 type formDataType = {
   first_name?: string;
@@ -49,9 +51,12 @@ const Account = () => {
   const { pathname }: Location = useLocation();
   const login: boolean = pathname === "/account/login";
 
-  const { auth, setAuth } = useAuth();
+  const { setAuth } = useAuth();
 
   const [formData, setFormData] = useState<formDataType>(formDataInitialValue);
+
+  const { matchesXLarge } = useMQ();
+
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
       const name = e.target.name;
@@ -85,8 +90,14 @@ const Account = () => {
             mail: formData.email,
             password: formData.password,
           };
-          const response = await axiosServer.post("/signup", requestBody);
-          navigate("/dashboard");
+          await axiosServer.post("/signup", requestBody);
+          toast.success(
+            "Your Account has been created successfully, Check Your email to activate it",
+            {
+              autoClose: false,
+            }
+          );
+          navigate("/");
         }
       } catch (error) {
         if (error) {
@@ -106,44 +117,51 @@ const Account = () => {
           minHeight: "calc(100vh - 100px)",
         }}
       >
-        <Grid
-          item
-          xs={6}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundImage: `url(${accountBackground})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center center",
-          }}
-        >
-          <Box
+        {matchesXLarge && (
+          <Grid
+            item
+            xs={6}
             sx={{
-              width: "80%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundImage: `url(${accountBackground})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center center",
             }}
           >
-            <Typography
-              variant="h2"
+            <Box
               sx={{
-                fontSize: "5rem",
-                fontWeight: "900",
-                color: "black.main",
-                background: "rgba(255,255,255,0.3)",
-                padding: "50px",
+                width: "80%",
               }}
             >
-              Digital Platform for project management.
-            </Typography>
-          </Box>
-        </Grid>
+              <Typography
+                variant="h2"
+                sx={{
+                  fontSize: "5rem",
+                  fontWeight: "900",
+                  color: "black.main",
+                  background: "rgba(255,255,255,0.3)",
+                  padding: "50px",
+                }}
+              >
+                Digital Platform for project management.
+              </Typography>
+            </Box>
+          </Grid>
+        )}
         <Grid
           item
-          xs={6}
+          xs={matchesXLarge ? 6 : 12}
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            backgroundImage: matchesXLarge
+              ? "none"
+              : `url(${accountBackground})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center center",
           }}
         >
           <Box
@@ -152,13 +170,21 @@ const Account = () => {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
+              backgroundColor: "white.main",
+              padding: "50px",
+              borderRadius: "20px",
+              minWidth: "400px",
               width: "60%",
-              maxWidth: "400px",
+              maxWidth: "500px",
             }}
           >
-            <Typography variant="h4">Hey, hello 👋</Typography>
+            <Typography variant="h4">
+              Hey, {login ? "welcome back" : "hello"} 👋
+            </Typography>
             <Typography variant="subtitle1">
-              Enter the information you entered while registering .
+              {login
+                ? "Enter the information you entered while registering."
+                : "Let us know who you are."}
             </Typography>
 
             <form onSubmit={handleSubmit}>
@@ -189,13 +215,26 @@ const Account = () => {
                     <FormControlLabel
                       control={<Checkbox />}
                       label="Remember me"
+                      sx={{
+                        whiteSpace: "nowrap",
+                      }}
                     />
-                    <StyledLink to="/account/forget-password">
+                    <StyledLink
+                      to="/account/forget-password"
+                      style={{
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       Forget Password ?
                     </StyledLink>
                   </Box>
 
-                  <StyledLink to="/account/signup">
+                  <StyledLink
+                    to="/account/signup"
+                    style={{
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     Don't have an account? Sign Up
                   </StyledLink>
 

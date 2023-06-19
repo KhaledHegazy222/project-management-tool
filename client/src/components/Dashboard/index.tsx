@@ -1,4 +1,4 @@
-import React, { FC, FormEvent, useCallback, useEffect, useRef } from "react";
+import React, { FormEvent, useCallback, useEffect, useRef } from "react";
 import {
   Grid,
   Typography,
@@ -15,6 +15,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Drawer,
+  SwipeableDrawer,
 } from "@mui/material";
 import Navbar from "./Navbar";
 
@@ -36,6 +38,9 @@ import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { StyledTextField } from "./Boards.styled";
 import WithAuth from "@/HOCs/WithAuth";
+import noProjectFound from "@/assets/images/noProjectFound.jpg";
+import selectProject from "@/assets/images/selectProject.jpg";
+import useMQ from "@/Hooks/useMQ";
 
 type projectType = {
   id: string;
@@ -43,14 +48,17 @@ type projectType = {
   opened: boolean;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 const Dashboard = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
+  const { matchesLarge, matchesMedium, matchesSmall } = useMQ();
+  console.log(matchesSmall);
   const [projects, setProjects] = useState<projectType[]>([]);
   const [newProjectDialogShow, setNewProjectDialogShow] =
     useState<boolean>(false);
   const projectTitleInputRef = useRef<HTMLInputElement | null>(null);
-
+  const [openDrawer, setOpenDrawer] = useState(false);
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -142,113 +150,310 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
-      <Grid
-        container
+      <Box
         sx={{
-          width: "80%",
-          margin: "20px auto",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Grid item xs={2}>
-          <Typography
+        <Navbar />
+        <SwipeableDrawer
+          open={openDrawer}
+          onClose={() => setOpenDrawer(false)}
+          onOpen={() => setOpenDrawer(true)}
+        >
+          <Box
             sx={{
-              fontSize: "1.6rem",
-              fontWeight: "800",
+              padding: "50px",
+              minWidth: "300px",
             }}
           >
-            Projects
-          </Typography>
+            <Typography
+              sx={{
+                fontSize: "1.6rem",
+                fontWeight: "800",
+              }}
+            >
+              Projects
+            </Typography>
 
-          <Divider />
-          <List>
-            {projects.map((project: projectType) => (
-              <React.Fragment key={project.id}>
-                <ListItem
-                  sx={{
-                    padding: "0",
-                  }}
-                >
-                  <ListItemButton
+            <Divider />
+            <List>
+              {projects.map((project: projectType) => (
+                <React.Fragment key={project.id}>
+                  <ListItem
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "15px 5px",
+                      padding: "0",
                     }}
-                    onClick={() => toggleCollapse(project.id)}
                   >
-                    <Typography>{project.title}</Typography>
-                    {project.opened ? <ExpandLess /> : <ExpandMore />}
-                  </ListItemButton>
-                </ListItem>{" "}
-                <ListItem
-                  sx={{
-                    padding: "0",
-                  }}
-                >
-                  <Collapse in={project.opened} timeout="auto" unmountOnExit>
-                    <List>
-                      <ListItemButton
-                        onClick={() => {
-                          navigate(`/dashboard/${project.id}/members`);
-                        }}
-                      >
-                        <People />
-                        <Typography
-                          sx={{
-                            margin: "0 10px",
+                    <ListItemButton
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "15px 5px",
+                      }}
+                      onClick={() => toggleCollapse(project.id)}
+                    >
+                      <Typography>{project.title}</Typography>
+                      {project.opened ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                  </ListItem>{" "}
+                  <ListItem
+                    sx={{
+                      padding: "0",
+                    }}
+                  >
+                    <Collapse in={project.opened} timeout="auto" unmountOnExit>
+                      <List>
+                        <ListItemButton
+                          onClick={() => {
+                            setOpenDrawer(false);
+                            navigate(`/dashboard/${project.id}/members`);
                           }}
                         >
-                          Members List
-                        </Typography>
-                      </ListItemButton>
+                          <People />
+                          <Typography
+                            sx={{
+                              margin: "0 10px",
+                            }}
+                          >
+                            Members List
+                          </Typography>
+                        </ListItemButton>
 
-                      <ListItemButton
-                        onClick={() => {
-                          navigate(`/dashboard/${project.id}/boards`);
-                        }}
-                      >
-                        <Assignment />
-                        <Typography
-                          sx={{
-                            margin: "0 10px",
+                        <ListItemButton
+                          onClick={() => {
+                            setOpenDrawer(false);
+                            navigate(`/dashboard/${project.id}/boards`);
                           }}
                         >
-                          Boards
-                        </Typography>
-                      </ListItemButton>
+                          <Assignment />
+                          <Typography
+                            sx={{
+                              margin: "0 10px",
+                            }}
+                          >
+                            Boards
+                          </Typography>
+                        </ListItemButton>
+                        <ListItemButton
+                          sx={{
+                            color: "primary.main",
+                          }}
+                          onClick={() => {
+                            setOpenDrawer(false);
+
+                            deleteProject(project.id);
+                          }}
+                        >
+                          <Close />
+                          <Typography
+                            sx={{
+                              margin: "0 10px",
+                            }}
+                          >
+                            Delete Project
+                          </Typography>
+                        </ListItemButton>
+                      </List>
+                    </Collapse>
+                  </ListItem>
+                </React.Fragment>
+              ))}
+            </List>
+          </Box>
+        </SwipeableDrawer>
+        <Grid
+          container
+          sx={{
+            width: matchesLarge ? "80%" : "97%",
+            margin: "20px auto",
+            flex: "1",
+          }}
+        >
+          {matchesMedium && (
+            <Grid item xs={2}>
+              <Typography
+                sx={{
+                  fontSize: "1.6rem",
+                  fontWeight: "800",
+                }}
+              >
+                Projects
+              </Typography>
+
+              <Divider />
+              <List>
+                {projects.map((project: projectType) => (
+                  <React.Fragment key={project.id}>
+                    <ListItem
+                      sx={{
+                        padding: "0",
+                      }}
+                    >
                       <ListItemButton
                         sx={{
-                          color: "primary.main",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "15px 5px",
                         }}
-                        onClick={() => {
-                          deleteProject(project.id);
+                        onClick={() => toggleCollapse(project.id)}
+                      >
+                        <Typography>{project.title}</Typography>
+                        {project.opened ? <ExpandLess /> : <ExpandMore />}
+                      </ListItemButton>
+                    </ListItem>{" "}
+                    <ListItem
+                      sx={{
+                        padding: "0",
+                      }}
+                    >
+                      <Collapse
+                        in={project.opened}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <List>
+                          <ListItemButton
+                            onClick={() => {
+                              navigate(`/dashboard/${project.id}/members`);
+                            }}
+                          >
+                            <People />
+                            <Typography
+                              sx={{
+                                margin: "0 10px",
+                              }}
+                            >
+                              Members List
+                            </Typography>
+                          </ListItemButton>
+
+                          <ListItemButton
+                            onClick={() => {
+                              navigate(`/dashboard/${project.id}/boards`);
+                            }}
+                          >
+                            <Assignment />
+                            <Typography
+                              sx={{
+                                margin: "0 10px",
+                              }}
+                            >
+                              Boards
+                            </Typography>
+                          </ListItemButton>
+                          <ListItemButton
+                            sx={{
+                              color: "primary.main",
+                            }}
+                            onClick={() => {
+                              deleteProject(project.id);
+                            }}
+                          >
+                            <Close />
+                            <Typography
+                              sx={{
+                                margin: "0 10px",
+                              }}
+                            >
+                              Delete Project
+                            </Typography>
+                          </ListItemButton>
+                        </List>
+                      </Collapse>
+                    </ListItem>
+                  </React.Fragment>
+                ))}
+              </List>
+            </Grid>
+          )}
+          <Grid item xs={matchesMedium ? 10 : 12}>
+            <Routes>
+              <Route path="/:id/members" element={<Members />} />
+              <Route path="/:id/boards" element={<Boards />} />
+              <Route
+                path="/"
+                element={
+                  <>
+                    {projects.length ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexDirection: "column",
+                          gap: "10px",
+                          height: "100%",
                         }}
                       >
-                        <Close />
+                        <img
+                          src={selectProject}
+                          style={{
+                            maxWidth: matchesSmall ? "60vw" : "80vw",
+                            maxHeight: matchesSmall ? "60vh" : "80vh",
+                          }}
+                        />
                         <Typography
+                          variant="h4"
                           sx={{
-                            margin: "0 10px",
+                            textAlign: "center",
                           }}
                         >
-                          Delete Project
+                          Start Working on your projects Now!
                         </Typography>
-                      </ListItemButton>
-                    </List>
-                  </Collapse>
-                </ListItem>
-              </React.Fragment>
-            ))}
-          </List>
+                        {!matchesMedium && (
+                          <Button
+                            variant="contained"
+                            sx={{
+                              fontSize: "1.1rem",
+                              fontWeight: "600",
+                            }}
+                            onClick={() => setOpenDrawer(true)}
+                          >
+                            Select Project
+                          </Button>
+                        )}
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexDirection: "column",
+                          gap: "10px",
+                          height: "100%",
+                        }}
+                      >
+                        <img
+                          src={noProjectFound}
+                          style={{
+                            maxWidth: matchesSmall ? "60vw" : "80vw",
+                            maxHeight: matchesSmall ? "60vh" : "80vh",
+                          }}
+                        />
+                        <Typography variant="h5" sx={{ textAlign: "center" }}>
+                          It seams that you don't have any projects yet
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          onClick={() => setNewProjectDialogShow(true)}
+                        >
+                          Create your first Project
+                        </Button>
+                      </Box>
+                    )}
+                  </>
+                }
+              />
+            </Routes>
+          </Grid>
         </Grid>
-        <Grid item xs={10}>
-          <Routes>
-            <Route path="/:id/members" element={<Members />} />
-            <Route path="/:id/boards" element={<Boards />} />
-          </Routes>
-        </Grid>
-      </Grid>
+      </Box>
       <Box
         sx={{
           position: "fixed",

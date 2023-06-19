@@ -41,7 +41,7 @@ const Hero = () => {
                 fontWeight: "900",
               }}
             >
-              Ngatur helps team move work together forward
+              PMT helps team move work together forward
             </Typography>
             <Typography
               sx={{
@@ -53,7 +53,7 @@ const Hero = () => {
             >
               Collaborate, manage projects, and reach new productivity peaks.
               From high rises to the home office, the way your team works is
-              unique. Accomplish it all with Ngatur.
+              unique. Accomplish it all with PMT.
             </Typography>
 
             <Box
