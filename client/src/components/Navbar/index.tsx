@@ -2,7 +2,9 @@ import { Box, Button, Toolbar, Typography } from "@mui/material";
 import { StyledAppBar } from "./AppBar.styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import logo from "@/assets/images/logo100.png";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import useMQ from "@/Hooks/useMQ";
+
 const navElements: string[] = [
   "Features",
   "Solutions",
@@ -12,11 +14,15 @@ const navElements: string[] = [
 ];
 const Navbar = () => {
   const navigate = useNavigate();
+  const { matchesLarge } = useMQ();
+
   return (
     <StyledAppBar position="static">
       <Toolbar
         sx={{
-          width: "90%",
+          width: matchesLarge ? "90%" : "100%",
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Box
@@ -47,30 +53,32 @@ const Navbar = () => {
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            flexGrow: 1,
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "row",
-          }}
-        >
-          {navElements.map((element) => (
-            <Button
-              key={element}
-              sx={{
-                color: "white.main",
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                margin: "10px",
-              }}
-            >
-              <Typography>{element}</Typography>
-              <ExpandMoreIcon sx={{ color: "white.main", margin: "5px" }} />
-            </Button>
-          ))}
-        </Box>
+        {matchesLarge && (
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "row",
+            }}
+          >
+            {navElements.map((element) => (
+              <Button
+                key={element}
+                sx={{
+                  color: "white.main",
+                  display: "flex",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  margin: "10px",
+                }}
+              >
+                <Typography>{element}</Typography>
+                <ExpandMoreIcon sx={{ color: "white.main", margin: "5px" }} />
+              </Button>
+            ))}
+          </Box>
+        )}
         <Button
           onClick={() => navigate("/dashboard")}
           sx={{

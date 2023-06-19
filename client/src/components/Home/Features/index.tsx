@@ -1,5 +1,6 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { FeatureContainer, featureItem } from "./FeatureContainer";
+import useMQ from "@/Hooks/useMQ";
 
 const featuresList: featureItem[] = [
   {
@@ -41,6 +42,7 @@ const featuresList: featureItem[] = [
 ];
 
 const Features = () => {
+  const { matchesLarge, matchesMedium } = useMQ();
   return (
     <Box
       sx={{
@@ -50,14 +52,14 @@ const Features = () => {
     >
       <Box
         sx={{
-          width: "80%",
+          width: matchesMedium ? "80%" : "90%",
           margin: "auto",
         }}
       >
         <Box
           sx={{
-            margin: "50px auto",
-            width: "50%",
+            margin: matchesMedium ? "50px auto" : "0 auto",
+            width: matchesMedium ? "700px" : "100%",
             color: "black",
           }}
         >
@@ -99,7 +101,11 @@ const Features = () => {
         </Box>
         <Grid container>
           {featuresList.map((feature: featureItem) => (
-            <Grid item xs={4} key={feature.title}>
+            <Grid
+              item
+              xs={matchesLarge ? 4 : matchesMedium ? 6 : 12}
+              key={feature.title}
+            >
               <FeatureContainer {...feature} />
             </Grid>
           ))}

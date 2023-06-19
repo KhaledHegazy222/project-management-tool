@@ -2,8 +2,10 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate, NavigateFunction } from "react-router-dom";
 import { StyledButton } from "./Hero.styled";
 import homeMain from "@/assets/images/heroMain.png";
+import useMQ from "@/Hooks/useMQ";
 const Hero = () => {
   const navigate: NavigateFunction = useNavigate();
+  const { matchesLarge, matchesSmall } = useMQ();
   return (
     <>
       <Box
@@ -12,6 +14,8 @@ const Hero = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexWrap: matchesLarge ? "nowrap" : "wrap",
+          paddingTop: matchesLarge ? "0" : "15%",
         }}
       >
         <Box
@@ -21,7 +25,7 @@ const Hero = () => {
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
-            width: "45%",
+            width: matchesLarge ? "45%" : "95%",
           }}
         >
           <Box
@@ -32,7 +36,7 @@ const Hero = () => {
           >
             <Typography
               sx={{
-                fontSize: "4rem",
+                fontSize: matchesSmall ? "4rem" : "3rem",
                 textAlign: "center",
                 fontWeight: "900",
               }}
@@ -57,6 +61,7 @@ const Hero = () => {
                 display: "flex",
                 justifyContent: "center",
                 gap: "20px",
+                flexWrap: "wrap",
               }}
             >
               <StyledButton
@@ -88,7 +93,14 @@ const Hero = () => {
             </Box>
           </Box>
         </Box>
-        <img src={homeMain} alt="Home" />
+        <img
+          src={homeMain}
+          alt="Home"
+          style={{
+            padding: "4%",
+            maxWidth: "100%",
+          }}
+        />
       </Box>
     </>
   );

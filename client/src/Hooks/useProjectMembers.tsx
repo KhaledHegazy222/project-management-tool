@@ -16,7 +16,7 @@ const useProjectMembers = (projectID: number): [boolean, memberType[]] => {
         const response = await axiosServer.get(`/project/${projectID}/member`, {
           headers: { Authorization: `Bearer ${auth}` },
         });
-        console.log();
+        
         setMembers(
           response.data.accepted.map(
             (member: {

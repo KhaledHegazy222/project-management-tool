@@ -53,7 +53,6 @@ const BoardBody = ({
   const [assignee, setAssignee] = useState<number>(-1);
   const [reviewer, setReviewer] = useState<number>(-1);
 
-  // console.log(new Date().toUTCString());
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {

@@ -1,3 +1,5 @@
+import { axiosServer } from "@/services";
+import axios from "axios";
 import {
   ReactNode,
   createContext,
@@ -9,14 +11,26 @@ import {
 } from "react";
 
 /* eslint-disable */
+
+type userType = {
+  id: string;
+  mail: string;
+  first_name: string;
+  last_name: string;
+};
+
 type contextValueType = {
+  loading: boolean;
   auth: string | null;
   setAuth: React.Dispatch<React.SetStateAction<string | null>>;
+  user: userType | null;
   logout: () => void;
 };
 const contextInitialValue: contextValueType = {
+  loading: true,
   auth: null,
   setAuth: () => {},
+  user: null,
   logout: () => {},
 };
 const AuthContext = createContext<contextValueType>(contextInitialValue);
@@ -28,13 +42,16 @@ export const AuthContextProvider = ({
   children,
 }: authContextProviderPropsType) => {
   const [auth, setAuth] = useState<string | null>(null);
+  const [user, setUser] = useState<userType | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const logout = useCallback(() => {
-    setAuth(null);
     localStorage.removeItem("token");
-  }, [setAuth]);
+    setAuth(null);
+    setUser(null);
+  }, []);
   const value = useMemo(
-    () => ({ auth, setAuth, logout }),
-    [auth, setAuth, logout]
+    () => ({ loading, auth, setAuth, user, logout }),
+    [loading, auth, setAuth, user, logout]
   );
 
   useEffect(() => {
@@ -43,7 +60,22 @@ export const AuthContextProvider = ({
     } else {
       setAuth(localStorage.getItem("token"));
     }
-  }, [auth, setAuth]);
+    if (auth) loadUser();
+
+    async function loadUser() {
+      setLoading(true);
+      const response = await axiosServer.get("/details", {
+        headers: { Authorization: `Bearer ${auth}` },
+      });
+      setUser({
+        id: response.data.user_id,
+        mail: response.data.mail,
+        first_name: response.data.first_name,
+        last_name: response.data.last_name,
+      });
+      setLoading(false);
+    }
+  }, [auth]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
