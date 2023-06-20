@@ -7,6 +7,7 @@ import axios, { Axios, AxiosError } from "axios";
 import { axiosServer } from "@/services";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
+import { useUpdates } from "@/contexts/UpdatesContext";
 
 type categoryType = {
   name: string;
@@ -38,8 +39,8 @@ let announceTask: any, announceComment: any;
 const Boards = () => {
   const { auth } = useAuth();
   const { id } = useParams();
+  const { updatedProject, setUpdatedProject, setUpdatedTask } = useUpdates();
   const [tasks, setTasks] = useState<taskType[]>([]);
-  const [updatedTask, setUpdatedTask] = useState<number | null>(null);
 
   const loadTasks = useCallback(async () => {
     try {
@@ -67,7 +68,12 @@ const Boards = () => {
   useEffect(() => {
     loadTasks();
   }, [auth, id, loadTasks]);
-
+  useEffect(() => {
+    if (parseInt(id as string) === updatedProject) {
+      loadTasks();
+      setUpdatedProject(null);
+    }
+  }, [id, loadTasks, updatedProject, setUpdatedProject]);
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL, {
       transports: ["websocket"],
@@ -84,7 +90,7 @@ const Boards = () => {
       socket.emit("send_task_comment", {
         taskId,
       });
-      setUpdatedTask(taskId);
+      setUpdatedProject(taskId);
     };
     socket.on("receive_task_create", (data) => {
       loadTasks();
@@ -92,7 +98,7 @@ const Boards = () => {
     socket.on("receive_task_comment", (data) => {
       setUpdatedTask(data.taskId);
     });
-  }, [auth, id, loadTasks]);
+  }, [auth, id, loadTasks, setUpdatedProject, setUpdatedTask]);
   return (
     <Box>
       <Typography
@@ -122,8 +128,6 @@ const Boards = () => {
             loadTasks={loadTasks}
             announceTask={announceTask}
             announceComment={announceComment}
-            updatedTask={updatedTask}
-            setUpdatedTask={setUpdatedTask}
           />
         ))}
       </Box>

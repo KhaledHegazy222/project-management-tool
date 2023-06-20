@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Home from "./Home";
 import Account from "@/components/Account";
 import Dashboard from "@/components/Dashboard";
+import { UpdatesContextProvider } from "@/contexts/UpdatesContext";
 
 export type pageEntry = {
   title: string;
@@ -34,6 +35,10 @@ export const pagesData: pageEntry[] = [
   {
     title: "Dashboard",
     path: "/dashboard/*",
-    component: <Dashboard />,
+    component: (
+      <UpdatesContextProvider>
+        <Dashboard />
+      </UpdatesContextProvider>
+    ),
   },
 ];

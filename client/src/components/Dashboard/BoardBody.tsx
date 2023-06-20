@@ -44,8 +44,6 @@ const BoardBody = ({
   loadTasks,
   announceTask,
   announceComment,
-  updatedTask,
-  setUpdatedTask,
 }: boardType & any) => {
   const { auth } = useAuth();
   const { id } = useParams();
@@ -153,12 +151,7 @@ const BoardBody = ({
                 },
               }}
             >
-              <TaskBody
-                {...task}
-                announceComment={announceComment}
-                updatedTask={updatedTask}
-                setUpdatedTask={setUpdatedTask}
-              />
+              <TaskBody {...task} announceComment={announceComment} />
             </ListItem>
           </Paper>
         ))}
