@@ -25,6 +25,7 @@ import { axiosServer } from "@/services";
 import { AxiosError } from "axios";
 import { useParams } from "react-router-dom";
 import useProjectMembers from "@/Hooks/useProjectMembers";
+import { useUpdates } from "@/contexts/UpdatesContext";
 
 export type taskType = {
   id: number;
@@ -53,10 +54,14 @@ const TaskBody = ({
   assignee,
   reviewer,
   deadLine,
-}: taskType) => {
+  announceComment,
+}: taskType & any) => {
   const { auth } = useAuth();
   const [loading, members] = useProjectMembers(projectId);
+  const { updatedTask, setUpdatedTask } = useUpdates();
   const commentInputRef = useRef<HTMLInputElement | null>(null);
+  const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
+  const [comments, setComments] = useState<commentType[]>([]);
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -82,29 +87,34 @@ const TaskBody = ({
         );
 
         (commentInputRef.current as HTMLInputElement).value = "";
+        announceComment(id);
       } catch (error) {
         console.log((error as AxiosError).response?.data);
       }
     },
-    [auth, id]
+    [auth, id, announceComment]
   );
-
-  const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
-  const [comments, setComments] = useState<commentType[]>([]);
+  const loadComments = useCallback(async () => {
+    try {
+      const response = await axiosServer.get(`/task/${id}/comment`, {
+        headers: { Authorization: `Bearer ${auth}` },
+      });
+      setComments(response.data);
+    } catch (error) {
+      console.log((error as AxiosError).response?.data);
+    }
+  }, [id, auth]);
+  useEffect(() => {
+    console.log(id);
+    if (updatedTask === id) {
+      loadComments();
+      setUpdatedTask(null);
+    }
+  }, [id, updatedTask, setUpdatedTask, loadComments]);
 
   useEffect(() => {
     loadComments();
-    async function loadComments() {
-      try {
-        const response = await axiosServer.get(`/task/${id}/comment`, {
-          headers: { Authorization: `Bearer ${auth}` },
-        });
-        setComments(response.data);
-      } catch (error) {
-        console.log((error as AxiosError).response?.data);
-      }
-    }
-  }, [auth, id]);
+  }, [loadComments]);
   return (
     <>
       <Box
@@ -318,7 +328,7 @@ const TaskBody = ({
               />
             </form>
           </Box>
-          {comments.reverse().map(
+          {[...comments].reverse().map(
             (comment: commentType): JSX.Element => (
               <Box
                 key={comment.creation_time}

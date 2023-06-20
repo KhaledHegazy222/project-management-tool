@@ -53,7 +53,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const { matchesLarge, matchesMedium, matchesSmall } = useMQ();
-  console.log(matchesSmall);
+
   const [projects, setProjects] = useState<projectType[]>([]);
   const [newProjectDialogShow, setNewProjectDialogShow] =
     useState<boolean>(false);

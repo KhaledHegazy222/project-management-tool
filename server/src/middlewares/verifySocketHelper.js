@@ -9,7 +9,6 @@ exports.verifySocket = (socket, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err) => {
     if (err) return next(new Error('Unauthorized'));
-    // eslint-disable-next-line no-param-reassign
     socket.projectId = projectId;
     socket.join(projectId);
     next();
