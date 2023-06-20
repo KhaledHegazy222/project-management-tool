@@ -154,6 +154,7 @@ exports.task_create_post = [
         }
       }
 
+      await dbConnection.dbQuery('BEGIN');
       const addTaskQuery = queries.queryList.ADD_TASK_QUERY;
       const values3 = [projectId, taskTitle, taskState, taskAssigneeId, taskReviewerId,
         taskDueDate, taskDescription];
@@ -163,8 +164,15 @@ exports.task_create_post = [
       const queryResp3 = await dbConnection.dbQuery(
         queries.queryList.GET_LAST_INSERTED_TASK_DETAIL_QUERY,
       );
+      await dbConnection.dbQuery(
+        queries.queryList.REFRESH_PROJECT_TIME_UPDATE_QUERY,
+        [queryResp3.rows[0].task_id], // length must be > 0
+      );
+      await dbConnection.dbQuery('COMMIT');
+
       return res.status(201).json(queryResp3.rows);
     } catch {
+      await dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },
@@ -195,12 +203,17 @@ exports.task_delete = [
     try {
       const { taskId } = req.params;
 
+      await dbConnection.dbQuery('BEGIN');
       const deleteTaskQuery = queries.queryList.DELETE_TASK_QUERY;
       const values = [taskId];
       await dbConnection.dbQuery(deleteTaskQuery, values);
 
+      await dbConnection.dbQuery(queries.queryList.REFRESH_PROJECT_TIME_UPDATE_QUERY, [taskId]);
+      await dbConnection.dbQuery('COMMIT');
+
       return res.sendStatus(200);
     } catch {
+      await dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },
@@ -221,12 +234,17 @@ exports.task_update_patch = [
       const { taskId } = req.params;
       const newState = req.body.task_state;
 
-      const changeTaskState = queries.queryList.CHANGE_TASK_STATE_QUERY;
+      await dbConnection.dbQuery('BEGIN');
+      const changeTaskStateQuery = queries.queryList.CHANGE_TASK_STATE_QUERY;
       const values = [newState, taskId];
-      await dbConnection.dbQuery(changeTaskState, values);
+      await dbConnection.dbQuery(changeTaskStateQuery, values);
+
+      await dbConnection.dbQuery(queries.queryList.REFRESH_PROJECT_TIME_UPDATE_QUERY, [taskId]);
+      await dbConnection.dbQuery('COMMIT');
 
       return res.sendStatus(200);
     } catch {
+      await dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },
@@ -248,12 +266,17 @@ exports.task_comment_create_post = [
       const { taskId } = req.params;
       const commentContent = req.body.comment_content;
 
+      await dbConnection.dbQuery('BEGIN');
       const addCommentQuery = queries.queryList.ADD_COMMENT_QUERY;
       const values = [userId, taskId, commentContent];
       await dbConnection.dbQuery(addCommentQuery, values);
 
+      await dbConnection.dbQuery(queries.queryList.REFRESH_PROJECT_TIME_UPDATE_QUERY, [taskId]);
+      await dbConnection.dbQuery('COMMIT');
+
       return res.status(201).json({ comment_content: commentContent });
     } catch {
+      await dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },

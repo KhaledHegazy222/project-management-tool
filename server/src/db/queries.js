@@ -4,8 +4,9 @@ exports.queryList = {
   GET_USER_QUERY: 'select * from "user" where mail = $1',
   GET_USER_ID_QUERY: 'select user_id from "user" where mail = $1',
   GET_USER_BY_ID_QUERY: 'select user_id, mail, first_name, last_name from "user" where user_id = $1',
-  GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
-  GET_STARRED_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1 and project_starred = true) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_STARRED_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1 and project_starred = true) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_RECENT_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id order by p.project_last_update_time desc',
 
   ADD_VERIFICATION_ID_QUERY: 'insert into verification values((SELECT currval(\'user_user_id_seq\')), $1)',
   GET_VERIFICATION_ID_QUERY: 'select verification_id from verification where user_id = (select user_id from "user" where mail = $1)',
@@ -19,6 +20,7 @@ exports.queryList = {
   DELETE_REST_ID_QUERY: 'delete from reset_password where user_id = $1',
 
   ADD_PROJECT_QUERY: 'insert into project(project_title) values ($1)',
+  REFRESH_PROJECT_TIME_UPDATE_QUERY: 'update project set project_last_update_time = CURRENT_TIMESTAMP where project_id = (select project_id from task where task_id = $1)',
   DELETE_PROJECT_QUERY: 'delete from project where project_id = $1',
   ADD_PROJECT_USER_RELATIONSHIP: 'insert into project_user(project_id, user_id, project_user_state) values ((SELECT currval(\'project_project_id_seq\')), $1, \'OWNER\')',
 

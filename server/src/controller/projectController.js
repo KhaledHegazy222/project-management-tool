@@ -13,6 +13,7 @@ exports.project_list_get = [
 
       let getProjectListQuery = queries.queryList.GET_PROJECT_LIST_QUERY;
       if (filter === 'star') getProjectListQuery = queries.queryList.GET_STARRED_PROJECT_LIST_QUERY;
+      if (filter === 'recent') getProjectListQuery = queries.queryList.GET_RECENT_PROJECT_LIST_QUERY;
 
       const values = [userId];
       const queryResp = await dbConnection.dbQuery(getProjectListQuery, values);

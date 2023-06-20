@@ -47,7 +47,8 @@ CREATE TABLE reset_password (
 CREATE TABLE project (
   project_id SERIAL PRIMARY KEY,
   project_title VARCHAR(255) NOT NULL,
-  project_creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  project_creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  project_last_update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the 'project_user' table
