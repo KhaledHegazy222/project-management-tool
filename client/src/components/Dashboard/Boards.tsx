@@ -90,7 +90,7 @@ const Boards = () => {
       socket.emit("send_task_comment", {
         taskId,
       });
-      setUpdatedProject(taskId);
+      setUpdatedProject(parseInt(id as string));
     };
     socket.on("receive_task_create", (data) => {
       loadTasks();

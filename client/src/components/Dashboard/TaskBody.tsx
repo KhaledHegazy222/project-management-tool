@@ -7,6 +7,8 @@ import {
   DialogTitle,
   Divider,
   IconButton,
+  Menu,
+  MenuItem,
   TextField,
   Typography,
 } from "@mui/material";
@@ -60,6 +62,7 @@ const TaskBody = ({
   const [loading, members] = useProjectMembers(projectId);
   const { updatedTask, setUpdatedTask } = useUpdates();
   const commentInputRef = useRef<HTMLInputElement | null>(null);
+  const { updatedProject, setUpdatedProject } = useUpdates();
   const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
   const [comments, setComments] = useState<commentType[]>([]);
   const handleSubmit = useCallback(
@@ -104,14 +107,36 @@ const TaskBody = ({
       console.log((error as AxiosError).response?.data);
     }
   }, [id, auth]);
+
+  const [stateMenuAnchor, setStateMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const openStateMenu = Boolean(stateMenuAnchor);
+  const handleStateClick = (e: React.MouseEvent<HTMLElement>) => {
+    setStateMenuAnchor(e.currentTarget);
+  };
+  const handleStateClose = () => {
+    setStateMenuAnchor(null);
+  };
+  const updateState = async (newState: string) => {
+    axiosServer.patch(
+      `/task/${id}`,
+      {
+        task_state: newState,
+      },
+      {
+        headers: { Authorization: `Bearer ${auth}` },
+      }
+    );
+    setUpdatedProject(projectId);
+  };
+
   useEffect(() => {
-    console.log(id);
     if (updatedTask === id) {
       loadComments();
       setUpdatedTask(null);
     }
   }, [id, updatedTask, setUpdatedTask, loadComments]);
-
   useEffect(() => {
     loadComments();
   }, [loadComments]);
@@ -233,7 +258,30 @@ const TaskBody = ({
               }}
             >
               {name}
-              <Chip label={state} variant="filled" sx={{ margin: "0 5px" }} />
+              <Chip
+                label={state}
+                variant="filled"
+                sx={{ margin: "0 5px" }}
+                onClick={handleStateClick}
+              />
+              <Menu
+                open={openStateMenu}
+                anchorEl={stateMenuAnchor}
+                onClose={handleStateClose}
+              >
+                <MenuItem onClick={() => updateState("New Request")}>
+                  New Request
+                </MenuItem>
+                <MenuItem onClick={() => updateState("In Progress")}>
+                  In Progress
+                </MenuItem>
+                <MenuItem onClick={() => updateState("On Review")}>
+                  On Review
+                </MenuItem>
+                <MenuItem onClick={() => updateState("Complete")}>
+                  Complete
+                </MenuItem>
+              </Menu>
             </Typography>
 
             <IconButton>

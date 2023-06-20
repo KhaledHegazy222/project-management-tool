@@ -1,4 +1,4 @@
-import React, { FormEvent, useRef, useState } from "react";
+import React, { FormEvent, useMemo, useRef, useState } from "react";
 import TaskBody, { taskType } from "./TaskBody";
 import {
   Box,
@@ -45,10 +45,18 @@ const BoardBody = ({
   announceTask,
   announceComment,
 }: boardType & any) => {
-  const { auth } = useAuth();
+  const { auth, user } = useAuth();
   const { id } = useParams();
   const [addNewTaskShow, setAddNewTaskShow] = useState<boolean>(false);
   const [loading, members] = useProjectMembers(parseInt(id as string));
+
+  const isOwner = useMemo(
+    () =>
+      members.some((member) => {
+        return parseInt(member.id) === user?.id && member.role === "OWNER";
+      }),
+    [user, members]
+  );
 
   const taskNameInputRef = useRef<HTMLInputElement | null>(null);
   const taskDescriptionInputRef = useRef<HTMLInputElement | null>(null);
@@ -58,6 +66,13 @@ const BoardBody = ({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (assignee === -1 || reviewer === -1) {
+      toast.error("Assignee and Reviewer can't be None", {
+        autoClose: 2000,
+        position: "top-right",
+      });
+      return;
+    }
     try {
       const requestBody = {
         project_id: id,
@@ -116,7 +131,7 @@ const BoardBody = ({
         </Typography>
       </Box>
       <List>
-        {addButton && (
+        {isOwner && addButton && (
           <Paper>
             <ListItemButton
               onClick={() => {

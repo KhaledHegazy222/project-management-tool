@@ -78,47 +78,64 @@ const Account = () => {
   const handleSubmit = useCallback(
     async (e: SyntheticEvent) => {
       e.preventDefault();
-      try {
-        if (login) {
-          const requestBody: loginRequestBodyType = {
-            mail: formData.email,
-            password: formData.password,
-          };
 
+      if (login) {
+        const requestBody: loginRequestBodyType = {
+          mail: formData.email,
+          password: formData.password,
+        };
+
+        try {
           const response = await axiosServer.post("/login", requestBody);
           setAuth(response.data.token);
           navigate("/dashboard");
-        } else if (forgetPassword) {
-          const requestBody: resetPasswordRequestBodyType = {
-            mail: formData.email,
-          };
-
-          await axiosServer.post("/reset_password", requestBody);
-          navigate("/");
-          toast.success("Check your email to reset your password", {
+        } catch {
+          toast.error("Incorrect email or password", {
             autoClose: 2000,
             position: "top-center",
           });
-        } else {
-          const requestBody: signupRequestBodyType = {
-            first_name: formData.first_name as string,
-            last_name: formData.last_name as string,
-            mail: formData.email,
-            password: formData.password,
-          };
-          await axiosServer.post("/signup", requestBody);
-          toast.success(
-            "Your Account has been created successfully, Check Your email to activate it",
-            {
-              autoClose: false,
-            }
-          );
-          navigate("/");
         }
-      } catch (error) {
-        if (error) {
-          console.log((error as AxiosError).response?.data);
+      } else if (forgetPassword) {
+        const requestBody: resetPasswordRequestBodyType = {
+          mail: formData.email,
+        };
+
+        await axiosServer.post("/reset_password", requestBody);
+        navigate("/");
+        toast.success("Check your email to reset your password", {
+          autoClose: 2000,
+          position: "top-center",
+        });
+      } else {
+        if (formData.password.length < 6) {
+          toast.error("Password should have at least 6 characters", {
+            autoClose: 1000,
+            position: "top-center",
+          });
+          return;
         }
+        if (formData.password !== formData["confirm-password"]) {
+          toast.error("Passwords Doesn't match", {
+            autoClose: 1000,
+            position: "top-center",
+          });
+          return;
+        }
+
+        const requestBody: signupRequestBodyType = {
+          first_name: formData.first_name as string,
+          last_name: formData.last_name as string,
+          mail: formData.email,
+          password: formData.password,
+        };
+        await axiosServer.post("/signup", requestBody);
+        toast.success(
+          "Your Account has been created successfully, Check Your email to activate it",
+          {
+            autoClose: false,
+          }
+        );
+        navigate("/");
       }
     },
     [login, formData, navigate, setAuth]

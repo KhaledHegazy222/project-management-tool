@@ -3,6 +3,7 @@ import React, {
   FormEventHandler,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import {
@@ -28,11 +29,19 @@ import { toast } from "react-toastify";
 
 const Members = () => {
   const { id } = useParams();
-  const { auth } = useAuth();
+  const { auth, user } = useAuth();
+
   const [addMembersDialogShow, setAddMembersDialogShow] =
     useState<boolean>(false);
   const [addedEmails, setAddedEmails] = useState<string[]>([]);
   const [membersList, setMembersList] = useState<memberType[]>([]);
+  const isOwner = useMemo(
+    () =>
+      membersList.some((member) => {
+        return member.id === user?.id && member.role === "OWNER";
+      }),
+    [user, membersList]
+  );
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -44,7 +53,7 @@ const Members = () => {
         return;
       }
       try {
-        const response = await axiosServer.post(
+        await axiosServer.post(
           `/project/${id}/member`,
           {
             members_mail: addedEmails,
@@ -52,8 +61,21 @@ const Members = () => {
           { headers: { Authorization: `Bearer ${auth}` } }
         );
         setAddMembersDialogShow(false);
+        toast.success("Inviation Sent Successfully");
       } catch (error) {
         console.log((error as AxiosError).response?.data);
+        Array.from((error as any).response?.data.non_valid_mails).forEach(
+          (email: any) => {
+            console.log(email);
+            toast.error(
+              `${
+                email.msg === "mail is not exist"
+                  ? "Mail Doesn't Exist"
+                  : email.msg
+              } (${email.memberMail} )`
+            );
+          }
+        );
       }
     },
     [id, addedEmails, auth]
@@ -118,45 +140,47 @@ const Members = () => {
             <MemberCard {...member} />
           </Grid>
         ))}
-        <Grid
-          item
-          xs="auto"
-          sx={{
-            padding: "10px",
-          }}
-        >
-          <Paper
+        {isOwner && (
+          <Grid
+            item
+            xs="auto"
             sx={{
-              transition: "200ms ease-in-out",
-              "&:hover": {
-                transform: "scale(1.05)",
-              },
+              padding: "10px",
             }}
           >
-            <Button
-              onClick={() => setAddMembersDialogShow(true)}
+            <Paper
               sx={{
-                minWidth: "200px",
-                minHeight: "200px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                height: "100%",
+                transition: "200ms ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                },
               }}
             >
-              <Add
+              <Button
+                onClick={() => setAddMembersDialogShow(true)}
                 sx={{
-                  fontSize: "4.5rem",
-                  transition: "all 400ms ease-in-out",
-                  "&:hover": {
-                    color: "primary.main",
-                  },
+                  minWidth: "200px",
+                  minHeight: "200px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  height: "100%",
                 }}
-              />
-            </Button>
-          </Paper>
-        </Grid>
+              >
+                <Add
+                  sx={{
+                    fontSize: "4.5rem",
+                    transition: "all 400ms ease-in-out",
+                    "&:hover": {
+                      color: "primary.main",
+                    },
+                  }}
+                />
+              </Button>
+            </Paper>
+          </Grid>
+        )}
       </Grid>
       <Dialog
         open={addMembersDialogShow}
