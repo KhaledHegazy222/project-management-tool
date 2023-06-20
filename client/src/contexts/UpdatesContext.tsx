@@ -5,6 +5,8 @@ type updatesContextType = {
   setUpdatedTask: React.Dispatch<React.SetStateAction<number | null>>;
   updatedProject: number | null;
   setUpdatedProject: React.Dispatch<React.SetStateAction<number | null>>;
+  updateStars: boolean;
+  setUpdateStars: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const updatesContextInitialValue: updatesContextType = {
@@ -14,6 +16,9 @@ const updatesContextInitialValue: updatesContextType = {
   updatedProject: null,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUpdatedProject: () => {},
+  updateStars: true,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  setUpdateStars: () => {},
 };
 
 const updatesContext = createContext(updatesContextInitialValue);
@@ -25,6 +30,7 @@ export const UpdatesContextProvider = ({
 }) => {
   const [updatedTask, setUpdatedTask] = useState<number | null>(null);
   const [updatedProject, setUpdatedProject] = useState<number | null>(null);
+  const [updateStars, setUpdateStars] = useState<boolean>(true);
 
   const value = useMemo(
     () => ({
@@ -32,8 +38,17 @@ export const UpdatesContextProvider = ({
       setUpdatedTask,
       updatedProject,
       setUpdatedProject,
+      updateStars,
+      setUpdateStars,
     }),
-    [updatedTask, setUpdatedTask, updatedProject, setUpdatedProject]
+    [
+      updatedTask,
+      setUpdatedTask,
+      updatedProject,
+      setUpdatedProject,
+      updateStars,
+      setUpdateStars,
+    ]
   );
 
   return (

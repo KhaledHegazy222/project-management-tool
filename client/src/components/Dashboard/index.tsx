@@ -27,6 +27,8 @@ import {
   Assignment,
   Close,
   Add,
+  Star,
+  StarOutline,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
@@ -41,6 +43,7 @@ import WithAuth from "@/HOCs/WithAuth";
 import noProjectFound from "@/assets/images/noProjectFound.jpg";
 import selectProject from "@/assets/images/selectProject.jpg";
 import useMQ from "@/Hooks/useMQ";
+import { useUpdates } from "@/contexts/UpdatesContext";
 
 type projectType = {
   id: string;
@@ -53,8 +56,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const { matchesLarge, matchesMedium, matchesSmall } = useMQ();
+  const { updateStars, setUpdateStars } = useUpdates();
 
   const [projects, setProjects] = useState<projectType[]>([]);
+  const [stars, setStars] = useState<number[]>([]);
   const [newProjectDialogShow, setNewProjectDialogShow] =
     useState<boolean>(false);
   const projectTitleInputRef = useRef<HTMLInputElement | null>(null);
@@ -122,8 +127,36 @@ const Dashboard = () => {
     }
   };
 
+  const setStar = async (projectId: number) => {
+    try {
+      await axiosServer.post(
+        `/project/${projectId}/star`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${auth}` },
+        }
+      );
+      setUpdateStars(true);
+    } catch (error) {
+      console.log((error as AxiosError).response?.data);
+    }
+  };
+  const clearStar = async (projectId: number) => {
+    try {
+      await axiosServer.delete(`/project/${projectId}/star`, {
+        headers: { Authorization: `Bearer ${auth}` },
+      });
+      setUpdateStars(true);
+    } catch (error) {
+      console.log((error as AxiosError).response?.data);
+    }
+  };
+
   useEffect(() => {
     loadData();
+    if (updateStars) {
+      loadStars();
+    }
     async function loadData() {
       try {
         const response = await axiosServer.get("/project", {
@@ -146,7 +179,18 @@ const Dashboard = () => {
         console.log((error as AxiosError).response?.data);
       }
     }
-  }, [auth]);
+    async function loadStars() {
+      try {
+        const response = await axiosServer.get("/project?filter=star", {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        setStars(response.data.map((project: any) => project.project_id));
+        setUpdateStars(false);
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+  }, [auth, setUpdateStars, updateStars]);
 
   return (
     <>
@@ -158,113 +202,119 @@ const Dashboard = () => {
         }}
       >
         <Navbar />
-        <SwipeableDrawer
-          open={openDrawer}
-          onClose={() => setOpenDrawer(false)}
-          onOpen={() => setOpenDrawer(true)}
-        >
-          <Box
-            sx={{
-              padding: "50px",
-              minWidth: "300px",
-            }}
+        {!matchesMedium && (
+          <SwipeableDrawer
+            open={openDrawer}
+            onClose={() => setOpenDrawer(false)}
+            onOpen={() => setOpenDrawer(true)}
           >
-            <Typography
+            <Box
               sx={{
-                fontSize: "1.6rem",
-                fontWeight: "800",
+                padding: "50px",
+                minWidth: "300px",
               }}
             >
-              Projects
-            </Typography>
+              <Typography
+                sx={{
+                  fontSize: "1.6rem",
+                  fontWeight: "800",
+                }}
+              >
+                Projects
+              </Typography>
 
-            <Divider />
-            <List>
-              {projects.map((project: projectType) => (
-                <React.Fragment key={project.id}>
-                  <ListItem
-                    sx={{
-                      padding: "0",
-                    }}
-                  >
-                    <ListItemButton
+              <Divider />
+              <List>
+                {projects.map((project: projectType) => (
+                  <React.Fragment key={project.id}>
+                    <ListItem
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "15px 5px",
+                        padding: "0",
                       }}
-                      onClick={() => toggleCollapse(project.id)}
                     >
-                      <Typography>{project.title}</Typography>
-                      {project.opened ? <ExpandLess /> : <ExpandMore />}
-                    </ListItemButton>
-                  </ListItem>{" "}
-                  <ListItem
-                    sx={{
-                      padding: "0",
-                    }}
-                  >
-                    <Collapse in={project.opened} timeout="auto" unmountOnExit>
-                      <List>
-                        <ListItemButton
-                          onClick={() => {
-                            setOpenDrawer(false);
-                            navigate(`/dashboard/${project.id}/members`);
-                          }}
-                        >
-                          <People />
-                          <Typography
-                            sx={{
-                              margin: "0 10px",
+                      <ListItemButton
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "15px 5px",
+                        }}
+                        onClick={() => toggleCollapse(project.id)}
+                      >
+                        <Typography>{project.title}</Typography>
+                        {project.opened ? <ExpandLess /> : <ExpandMore />}
+                      </ListItemButton>
+                    </ListItem>
+                    <ListItem
+                      sx={{
+                        padding: "0",
+                      }}
+                    >
+                      <Collapse
+                        in={project.opened}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <List>
+                          <ListItemButton
+                            onClick={() => {
+                              setOpenDrawer(false);
+                              navigate(`/dashboard/${project.id}/members`);
                             }}
                           >
-                            Members List
-                          </Typography>
-                        </ListItemButton>
+                            <People />
+                            <Typography
+                              sx={{
+                                margin: "0 10px",
+                              }}
+                            >
+                              Members List
+                            </Typography>
+                          </ListItemButton>
 
-                        <ListItemButton
-                          onClick={() => {
-                            setOpenDrawer(false);
-                            navigate(`/dashboard/${project.id}/boards`);
-                          }}
-                        >
-                          <Assignment />
-                          <Typography
-                            sx={{
-                              margin: "0 10px",
+                          <ListItemButton
+                            onClick={() => {
+                              setOpenDrawer(false);
+                              navigate(`/dashboard/${project.id}/boards`);
                             }}
                           >
-                            Boards
-                          </Typography>
-                        </ListItemButton>
-                        <ListItemButton
-                          sx={{
-                            color: "primary.main",
-                          }}
-                          onClick={() => {
-                            setOpenDrawer(false);
+                            <Assignment />
+                            <Typography
+                              sx={{
+                                margin: "0 10px",
+                              }}
+                            >
+                              Boards
+                            </Typography>
+                          </ListItemButton>
+                          <ListItemButton
+                            sx={{
+                              color: "primary.main",
+                            }}
+                            onClick={() => {
+                              setOpenDrawer(false);
 
-                            deleteProject(project.id);
-                          }}
-                        >
-                          <Close />
-                          <Typography
-                            sx={{
-                              margin: "0 10px",
+                              deleteProject(project.id);
                             }}
                           >
-                            Delete Project
-                          </Typography>
-                        </ListItemButton>
-                      </List>
-                    </Collapse>
-                  </ListItem>
-                </React.Fragment>
-              ))}
-            </List>
-          </Box>
-        </SwipeableDrawer>
+                            <Close />
+                            <Typography
+                              sx={{
+                                margin: "0 10px",
+                              }}
+                            >
+                              Delete Project
+                            </Typography>
+                          </ListItemButton>
+                        </List>
+                      </Collapse>
+                    </ListItem>
+                  </React.Fragment>
+                ))}
+              </List>
+            </Box>
+          </SwipeableDrawer>
+        )}
         <Grid
           container
           sx={{
@@ -331,7 +381,6 @@ const Dashboard = () => {
                               Members List
                             </Typography>
                           </ListItemButton>
-
                           <ListItemButton
                             onClick={() => {
                               navigate(`/dashboard/${project.id}/boards`);
@@ -348,6 +397,43 @@ const Dashboard = () => {
                           </ListItemButton>
                           <ListItemButton
                             sx={{
+                              color: "#000",
+                            }}
+                            onClick={() => {
+                              if (stars.includes(parseInt(project.id))) {
+                                clearStar(parseInt(project.id));
+                              } else {
+                                setStar(parseInt(project.id));
+                              }
+                            }}
+                          >
+                            {stars.includes(parseInt(project.id)) ? (
+                              <>
+                                <Star />
+                                <Typography
+                                  sx={{
+                                    margin: "0 10px",
+                                  }}
+                                >
+                                  Starred
+                                </Typography>
+                              </>
+                            ) : (
+                              <>
+                                {" "}
+                                <StarOutline />
+                                <Typography
+                                  sx={{
+                                    margin: "0 10px",
+                                  }}
+                                >
+                                  Star Project
+                                </Typography>
+                              </>
+                            )}
+                          </ListItemButton>
+                          <ListItemButton
+                            sx={{
                               color: "primary.main",
                             }}
                             onClick={() => {
@@ -355,6 +441,7 @@ const Dashboard = () => {
                             }}
                           >
                             <Close />
+
                             <Typography
                               sx={{
                                 margin: "0 10px",

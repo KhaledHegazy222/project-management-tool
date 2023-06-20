@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AxiosError } from "axios";
 import { axiosServer } from "@/services";
 import { toast } from "react-toastify";
+import { useUpdates } from "@/contexts/UpdatesContext";
 
 type requestType = {
   project_id: number;
@@ -32,13 +33,38 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
   const [requests, setRequests] = useState<requestType[]>([]);
+  const [stars, setStars] = useState<any[]>([]);
+  const { updateStars, setUpdateStars } = useUpdates();
+  const [starsAnchorMenu, setStarsAnchorMenu] = useState<null | HTMLElement>(
+    null
+  );
+  const [recentProjects, setRecentProjects] = useState<any[]>([]);
+  const [recentAnchorMenu, setRecentAnchorMenu] = useState<null | HTMLElement>(
+    null
+  );
+  const starsMenuOpen = Boolean(starsAnchorMenu);
+  const handleStarMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setStarsAnchorMenu(e.currentTarget);
+  };
+
+  const handleStarsMenuClose = () => {
+    setStarsAnchorMenu(null);
+  };
+
+  const recentMenuOpen = Boolean(recentAnchorMenu);
+  const handleRecentMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setRecentAnchorMenu(e.currentTarget);
+  };
+
+  const handleRecentMenuClose = () => {
+    setRecentAnchorMenu(null);
+  };
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   const acceptRequest = async (project_id: number) => {
     try {
       await axiosServer.post(
@@ -60,7 +86,6 @@ const Navbar = () => {
       console.log((error as AxiosError).response?.data);
     }
   };
-
   const cancelRequest = async (project_id: number) => {
     try {
       await axiosServer.post(
@@ -85,6 +110,10 @@ const Navbar = () => {
 
   useEffect(() => {
     loadRequests();
+    loadRecentProjects();
+    if (updateStars) {
+      loadStars();
+    }
     async function loadRequests() {
       try {
         const response = await axiosServer.get("/request", {
@@ -95,7 +124,29 @@ const Navbar = () => {
         console.log((error as AxiosError).response?.data);
       }
     }
-  }, [auth]);
+    async function loadStars() {
+      try {
+        const response = await axiosServer.get("/project?filter=star", {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        setStars(response.data);
+        setUpdateStars(false);
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+    async function loadRecentProjects() {
+      try {
+        const response = await axiosServer.get("/project?filter=recent", {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+
+        setRecentProjects(response.data);
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+  }, [auth, updateStars, setUpdateStars]);
   return (
     <>
       <AppBar position="static">
@@ -142,7 +193,7 @@ const Navbar = () => {
               </Typography>
             </Link>
           </Box>
-          {/* <Box
+          <Box
             sx={{
               margin: "0 50px",
               flexGrow: 1,
@@ -151,7 +202,7 @@ const Navbar = () => {
               flexDirection: "row",
             }}
           >
-            <StyledNavButton>
+            <StyledNavButton onClick={handleRecentMenuClick}>
               <Typography sx={{ fontSize: "inherit", fontWeight: "inherit" }}>
                 Recent
               </Typography>
@@ -159,7 +210,29 @@ const Navbar = () => {
                 sx={{ fontSize: "inherit", fontWeight: "inherit" }}
               />
             </StyledNavButton>
-            <StyledNavButton>
+            <Menu
+              open={recentMenuOpen}
+              anchorEl={recentAnchorMenu}
+              onClose={handleRecentMenuClose}
+            >
+              {recentProjects.length ? (
+                recentProjects.map((project) => (
+                  <MenuItem
+                    key={project.project_id}
+                    onClick={() =>
+                      navigate(`/dashboard/${project.project_id}/boards`)
+                    }
+                  >
+                    {project.project_title}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>
+                  Currently, you don't have any recent Projects!
+                </MenuItem>
+              )}
+            </Menu>
+            <StyledNavButton onClick={handleStarMenuClick}>
               <Typography sx={{ fontSize: "inherit", fontWeight: "inherit" }}>
                 Starred
               </Typography>
@@ -167,7 +240,31 @@ const Navbar = () => {
                 sx={{ fontSize: "inherit", fontWeight: "inherit" }}
               />
             </StyledNavButton>
-          </Box> */}
+            <Menu
+              open={starsMenuOpen}
+              anchorEl={starsAnchorMenu}
+              onClose={() => {
+                handleStarsMenuClose();
+              }}
+            >
+              {stars.length ? (
+                stars.map((project) => (
+                  <MenuItem
+                    key={project.project_id}
+                    onClick={() =>
+                      navigate(`/dashboard/${project.project_id}/boards`)
+                    }
+                  >
+                    {project.project_title}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>
+                  Currently, you don't have any starred Projects!
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
           <Box>
             <IconButton
               onClick={handleClick}
