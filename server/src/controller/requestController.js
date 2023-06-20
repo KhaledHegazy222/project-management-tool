@@ -9,12 +9,18 @@ exports.user_request_get = [
     try {
       const { userId } = req;
 
+      await dbConnection.dbQuery('BEGIN');
       const getMemberRequestsQuery = queries.queryList.GET_MEMBER_REQUESTS_QUERY;
       const values = [userId];
       const queryResp = await dbConnection.dbQuery(getMemberRequestsQuery, values);
 
+      const updateMemberRequestsSeenQuery = queries.queryList.UPDATE_MEMBER_REQUESTS_SEEN_QUERY;
+      await dbConnection.dbQuery(updateMemberRequestsSeenQuery, values);
+      await dbConnection.dbQuery('COMMIT');
+
       return res.status(200).json(queryResp.rows);
     } catch {
+      await dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },

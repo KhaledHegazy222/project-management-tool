@@ -33,7 +33,8 @@ exports.queryList = {
 
   ADD_MEMBER_REQUEST_QUERY: 'insert into project_request values($1, $2)',
   GET_MEMBER_REQUEST_QUERY: 'select * from project_request where project_id = $1 and user_id = $2',
-  GET_MEMBER_REQUESTS_QUERY: 'select pu.project_id, p.project_title from (select project_id from project_request where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_MEMBER_REQUESTS_QUERY: 'select pu.project_id, p.project_title, pu.request_first_seen from (select project_id, request_first_seen from project_request where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
+  UPDATE_MEMBER_REQUESTS_SEEN_QUERY: 'update project_request set request_first_seen = false where user_id = $1 and request_first_seen = true;',
   DELETE_MEMBER_REQUEST_QUERY: 'delete from project_request where project_id = $1 and user_id = $2',
 
   ADD_MEMBER_QUERY: 'insert into project_user values($1, $2, \'MEMBER\')',

@@ -65,6 +65,7 @@ CREATE TABLE project_user (
 CREATE TABLE project_request (
   project_id INT NOT NULL,
   user_id INT NOT NULL,
+  request_first_seen BOOL DEFAULT 'true',
   FOREIGN KEY (project_id) REFERENCES project (project_id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES "user" (user_id)
 );
