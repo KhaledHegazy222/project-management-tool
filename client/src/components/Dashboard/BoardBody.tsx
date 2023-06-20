@@ -41,7 +41,12 @@ const BoardBody = ({
   color,
   tasks,
   addButton = false,
-}: boardType & { addButton: boolean }) => {
+  loadTasks,
+  announceTask,
+  announceComment,
+  updatedTask,
+  setUpdatedTask,
+}: boardType & any) => {
   const { auth } = useAuth();
   const { id } = useParams();
   const [addNewTaskShow, setAddNewTaskShow] = useState<boolean>(false);
@@ -78,6 +83,8 @@ const BoardBody = ({
         autoClose: 1000,
         position: "top-center",
       });
+      loadTasks();
+      announceTask();
       setAddNewTaskShow(false);
     } catch (error) {
       console.log((error as AxiosError).response?.data);
@@ -146,7 +153,12 @@ const BoardBody = ({
                 },
               }}
             >
-              <TaskBody {...task} />
+              <TaskBody
+                {...task}
+                announceComment={announceComment}
+                updatedTask={updatedTask}
+                setUpdatedTask={setUpdatedTask}
+              />
             </ListItem>
           </Paper>
         ))}

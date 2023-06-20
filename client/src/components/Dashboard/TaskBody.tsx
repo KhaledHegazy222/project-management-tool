@@ -53,7 +53,10 @@ const TaskBody = ({
   assignee,
   reviewer,
   deadLine,
-}: taskType) => {
+  announceComment,
+  updatedTask,
+  setUpdatedTask,
+}: taskType & any) => {
   const { auth } = useAuth();
   const [loading, members] = useProjectMembers(projectId);
   const commentInputRef = useRef<HTMLInputElement | null>(null);
@@ -82,12 +85,28 @@ const TaskBody = ({
         );
 
         (commentInputRef.current as HTMLInputElement).value = "";
+        announceComment(id);
       } catch (error) {
         console.log((error as AxiosError).response?.data);
       }
     },
-    [auth, id]
+    [auth, id, announceComment]
   );
+  useEffect(() => {
+    if (updatedTask === id) loadComments();
+
+    async function loadComments() {
+      try {
+        const response = await axiosServer.get(`/task/${id}/comment`, {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        setComments(response.data);
+        setUpdatedTask(null);
+      } catch (error) {
+        console.log((error as AxiosError).response?.data);
+      }
+    }
+  }, [auth, id, updatedTask, setUpdatedTask]);
 
   const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
   const [comments, setComments] = useState<commentType[]>([]);
@@ -318,7 +337,7 @@ const TaskBody = ({
               />
             </form>
           </Box>
-          {comments.reverse().map(
+          {[...comments].reverse().map(
             (comment: commentType): JSX.Element => (
               <Box
                 key={comment.creation_time}
