@@ -55,6 +55,7 @@ CREATE TABLE project_user (
   project_id INT NOT NULL,
   user_id INT NOT NULL,
   project_user_state VARCHAR(255) NOT NULL,
+  project_starred BOOL DEFAULT 'false',
   FOREIGN KEY (project_id) REFERENCES project (project_id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES "user" (user_id)
 );

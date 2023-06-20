@@ -5,6 +5,7 @@ exports.queryList = {
   GET_USER_ID_QUERY: 'select user_id from "user" where mail = $1',
   GET_USER_BY_ID_QUERY: 'select user_id, mail, first_name, last_name from "user" where user_id = $1',
   GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_STARRED_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time from (select project_id from project_user where user_id = $1 and project_starred = true) as pu inner join project as p on p.project_id = pu.project_id',
 
   ADD_VERIFICATION_ID_QUERY: 'insert into verification values((SELECT currval(\'user_user_id_seq\')), $1)',
   GET_VERIFICATION_ID_QUERY: 'select verification_id from verification where user_id = (select user_id from "user" where mail = $1)',
@@ -26,6 +27,7 @@ exports.queryList = {
 
   GET_PROJECT_DETAIL_QUERY: 'select * from project where project_id = $1',
   GET_LAST_INSERTED_PROJECT_DETAIL_QUERY: 'select * from project where project_id = (SELECT currval(\'project_project_id_seq\'))',
+  UPDATE_PROJECT_USER_STARRED_QUERY: 'update project_user set project_starred = $1 where user_id = $2 and project_id = $3',
 
   ADD_MEMBER_REQUEST_QUERY: 'insert into project_request values($1, $2)',
   GET_MEMBER_REQUEST_QUERY: 'select * from project_request where project_id = $1 and user_id = $2',

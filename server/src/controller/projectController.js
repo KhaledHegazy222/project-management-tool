@@ -9,8 +9,11 @@ exports.project_list_get = [
   async (req, res) => {
     try {
       const { userId } = req;
+      const { filter } = req.query;
 
-      const getProjectListQuery = queries.queryList.GET_PROJECT_LIST_QUERY;
+      let getProjectListQuery = queries.queryList.GET_PROJECT_LIST_QUERY;
+      if (filter === 'star') getProjectListQuery = queries.queryList.GET_STARRED_PROJECT_LIST_QUERY;
+
       const values = [userId];
       const queryResp = await dbConnection.dbQuery(getProjectListQuery, values);
 
@@ -160,6 +163,44 @@ exports.project_member_post = [
       return res.sendStatus(201);
     } catch {
       dbConnection.dbQuery('ROLLBACK');
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.project_star_post = [
+  authHelper.authenticateToken,
+  checkHelper.checkMember,
+  async (req, res) => {
+    try {
+      const { userId } = req;
+      const { projectId } = req.params;
+
+      const updateProjectUserStarredQuery = queries.queryList.UPDATE_PROJECT_USER_STARRED_QUERY;
+      const values = [true, userId, projectId];
+      await dbConnection.dbQuery(updateProjectUserStarredQuery, values);
+
+      return res.sendStatus(200);
+    } catch {
+      return res.sendStatus(500);
+    }
+  },
+];
+
+exports.project_star_delete = [
+  authHelper.authenticateToken,
+  checkHelper.checkMember,
+  async (req, res) => {
+    try {
+      const { userId } = req;
+      const { projectId } = req.params;
+
+      const updateProjectUserStarredQuery = queries.queryList.UPDATE_PROJECT_USER_STARRED_QUERY;
+      const values = [false, userId, projectId];
+      await dbConnection.dbQuery(updateProjectUserStarredQuery, values);
+
+      return res.sendStatus(200);
+    } catch {
       return res.sendStatus(500);
     }
   },
