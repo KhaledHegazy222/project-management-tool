@@ -153,17 +153,17 @@ exports.project_member_post = [
       }
 
       // make query
-      dbConnection.dbQuery('BEGIN');
+      await dbConnection.dbQuery('BEGIN');
       await Promise.all(validMailsId.map((memberId) => {
         const addMemberRequestQuery = queries.queryList.ADD_MEMBER_REQUEST_QUERY;
         const values = [projectId, memberId];
         return dbConnection.dbQuery(addMemberRequestQuery, values);
       }));
-      dbConnection.dbQuery('COMMIT');
+      await dbConnection.dbQuery('COMMIT');
 
       return res.sendStatus(201);
     } catch {
-      dbConnection.dbQuery('ROLLBACK');
+      await dbConnection.dbQuery('ROLLBACK');
       return res.sendStatus(500);
     }
   },

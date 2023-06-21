@@ -51,7 +51,11 @@ io.on('connection', (socket) => {
   socket.on('send_join_project', (data) => {
     const { projectId } = data; // the invited user id
     console.log('send_join_project', projectId);
+    // io.sockets.adapter.rooms.forEach((room) => {
+    //   console.log(room);
+    // });
     socket.join(`project: ${projectId}`);
+    console.log(Object.keys(io.sockets.adapter.rooms));
   });
 
   socket.on('send_task_changes', (data) => {
