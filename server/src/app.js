@@ -32,15 +32,28 @@ io.use(verifySocketHelper.verifySocket);
 io.on('connection', (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
-  socket.on('send_task_comment', (data) => {
-    const { taskId } = data;
-    console.log('send_task_comment', taskId, socket.projectId);
-    socket.to(socket.projectId).emit('receive_task_comment', { taskId });
+  socket.on('send_user_invitation', (data) => {
+    const { userId } = data; // the invited user id
+    console.log('send_user_invitation', userId);
+    socket.to(`user: ${userId}`).emit('receive_user_invitation');
   });
 
-  socket.on('send_create_task', () => {
-    console.log('send_create_task', socket.projectId);
-    socket.to(socket.projectId).emit('receive_task_create', { projectId: socket.projectId });
+  socket.on('send_join_project', (data) => {
+    const { projectId } = data; // the invited user id
+    console.log('send_join_project', projectId);
+    socket.join(`project: ${projectId}`);
+  });
+
+  socket.on('send_task_changes', (data) => {
+    const { projectId } = data;
+    console.log('send_task_changes', projectId);
+    socket.to(`project: ${projectId}`).emit('receive_task_changes', { projectId });
+  });
+
+  socket.on('send_task_comment', (data) => {
+    const { taskId, projectId } = data;
+    console.log('send_task_comment', taskId, projectId);
+    socket.to(`project: ${projectId}`).emit('receive_task_comment', { taskId });
   });
 });
 
