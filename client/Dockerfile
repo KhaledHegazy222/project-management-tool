@@ -23,11 +23,11 @@ WORKDIR /app
 
 COPY package.json yarn.lock* ./
 
-RUN yarn
+# RUN yarn
 
 COPY ./ ./
 
-RUN yarn run build
+# RUN yarn run build
 
 FROM nginx:1.25.0-alpine as production
 
