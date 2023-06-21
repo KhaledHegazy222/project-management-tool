@@ -51,7 +51,7 @@ services:
     environment:
       DOMAINS: "project-management.duckdns.org -> http://client:3000, api.project-management.duckdns.org -> http://server:8000"
       STAGE: "production" # Don't use production until staging works
-      WEBSOCKET: true
+      WEBSOCKET: "true"
     volumes:
       - https-portal-data:/var/lib/https-portal
     networks:
