@@ -4,8 +4,8 @@ exports.queryList = {
   GET_USER_QUERY: 'select * from "user" where mail = $1',
   GET_USER_ID_QUERY: 'select user_id from "user" where mail = $1',
   GET_USER_BY_ID_QUERY: 'select user_id, mail, first_name, last_name from "user" where user_id = $1',
-  GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
-  GET_STARRED_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1 and project_starred = true) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id order by p.project_creation_time',
+  GET_STARRED_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1 and project_starred = true) as pu inner join project as p on p.project_id = pu.project_id order by p.project_creation_time',
   GET_RECENT_PROJECT_LIST_QUERY: 'select p.project_id, p.project_title, p.project_creation_time, p.project_last_update_time from (select project_id from project_user where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id order by p.project_last_update_time desc',
 
   ADD_VERIFICATION_ID_QUERY: 'insert into verification values((SELECT currval(\'user_user_id_seq\')), $1)',
@@ -33,21 +33,21 @@ exports.queryList = {
 
   ADD_MEMBER_REQUEST_QUERY: 'insert into project_request values($1, $2)',
   GET_MEMBER_REQUEST_QUERY: 'select * from project_request where project_id = $1 and user_id = $2',
-  GET_MEMBER_REQUESTS_QUERY: 'select pu.project_id, p.project_title, pu.request_first_seen from (select project_id, request_first_seen from project_request where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id',
+  GET_MEMBER_REQUESTS_QUERY: 'select pu.project_id, p.project_title, pu.request_first_seen from (select project_id, request_first_seen from project_request where user_id = $1) as pu inner join project as p on p.project_id = pu.project_id order by pu.request_first_seen desc',
   UPDATE_MEMBER_REQUESTS_SEEN_QUERY: 'update project_request set request_first_seen = false where user_id = $1 and request_first_seen = true;',
   DELETE_MEMBER_REQUEST_QUERY: 'delete from project_request where project_id = $1 and user_id = $2',
 
   ADD_MEMBER_QUERY: 'insert into project_user values($1, $2, \'MEMBER\')',
   GET_MEMBER_QUERY: 'select * from project_user where project_id = $1 and user_id = $2 and project_user_state = \'MEMBER\'',
-  GET_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name, ps.project_user_state from (select user_id, project_user_state from project_user where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
-  GET_REQUEST_PROJECT_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name from (select user_id from project_request where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id ',
+  GET_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name, ps.project_user_state from (select user_id, project_user_state from project_user where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id order by u.first_name, u.last_name',
+  GET_REQUEST_PROJECT_MEMBERS_QUERY: 'select u.user_id, u.first_name, u.last_name from (select user_id from project_request where project_id = $1) as ps inner join "user" as u on u.user_id = ps.user_id order by u.first_name, u.last_name',
 
   ADD_TASK_QUERY: 'insert into task(project_id, task_title, task_state, task_assignee_id, task_reviewer_id, task_due_date, task_description) values($1, $2, $3, $4, $5, $6, $7)',
   GET_TASK_DETAIL_QUERY: 'select * from task where task_id = $1',
   GET_TASK_DETAIL_PROJECT_QUERY: 'select project_id from task where task_id = $1',
   GET_LAST_INSERTED_TASK_DETAIL_QUERY: 'select * from task where task_id = (SELECT currval(\'task_task_id_seq\'))',
   DELETE_TASK_QUERY: 'delete from task where task_id = $1',
-  GET_PROJECT_TASKS_QUERY: 'select * from task where project_id = $1',
+  GET_PROJECT_TASKS_QUERY: 'select * from task where project_id = $1 order by task_title',
   CHANGE_TASK_STATE_QUERY: 'update task set task_state = $1 where task_id = $2',
 
   GET_TASK_UPDATERS_QUERY: 'select pu.user_id, t.task_assignee_id, t.task_reviewer_id from (select task_assignee_id, task_reviewer_id, project_id from task where task_id = $1) as t inner join project_user as pu on pu.project_id = t.project_id and pu.project_user_state = \'OWNER\'',
