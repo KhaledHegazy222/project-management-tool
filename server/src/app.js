@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
+const queries = require('./db/queries');
+const dbConnection = require('./db/connection');
 const verifySocketHelper = require('./middlewares/verifySocketHelper');
 const userRoute = require('./route/userRoute');
 const projectRoute = require('./route/projectRoute');
@@ -32,10 +34,18 @@ io.use(verifySocketHelper.verifySocket);
 io.on('connection', (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
-  socket.on('send_user_invitation', (data) => {
-    const { userId } = data; // the invited user id
-    console.log('send_user_invitation', userId);
-    socket.to(`user: ${userId}`).emit('receive_user_invitation');
+  socket.on('send_user_invitation', async (data) => {
+    const { invitedMails } = data;
+
+    const getUserQuery = queries.queryList.GET_USER_QUERY;
+    const invitedUsersId = await Promise.all(invitedMails.map(async (invitedMail) => {
+      const invitedUserId = await dbConnection.dbQuery(getUserQuery, [invitedMail]);
+      return invitedUserId;
+    }));
+    console.log('send_user_invitation', invitedUsersId);
+    invitedUsersId.forEach((invitedUserId) => {
+      socket.to(`user: ${invitedUserId}`).emit('receive_user_invitation');
+    });
   });
 
   socket.on('send_join_project', (data) => {
