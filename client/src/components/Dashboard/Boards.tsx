@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import BoardBody, { boardType } from "./BoardBody";
+import BoardBody from "./BoardBody";
 import { taskType } from "./TaskBody";
 import { useAuth } from "@/contexts/AuthContext";
-import axios, { Axios, AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { axiosServer } from "@/services";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -35,11 +35,18 @@ const boardCategories: categoryType[] = [
     color: "#0f0",
   },
 ];
-let announceTask: any, announceComment: any;
+/* eslint-disable */
+let announceTask: () => void, announceComment: (taskId: number) => void;
+// announceRequest: () => void;
 const Boards = () => {
   const { auth } = useAuth();
   const { id } = useParams();
-  const { updatedProject, setUpdatedProject, setUpdatedTask } = useUpdates();
+  const {
+    updatedProject,
+    setUpdatedProject,
+    setUpdatedTask,
+    setUpdateRequests,
+  } = useUpdates();
   const [tasks, setTasks] = useState<taskType[]>([]);
 
   const loadTasks = useCallback(async () => {
@@ -79,26 +86,44 @@ const Boards = () => {
       transports: ["websocket"],
       query: {
         token: auth,
-        projectId: id,
       },
     });
     announceTask = () => {
-      socket.emit("send_create_task");
+      socket.emit("send_task_changes", {
+        projectId: id,
+      });
     };
+    socket.on("receive_task_changes", () => {
+      loadTasks();
+    });
 
     announceComment = (taskId: number) => {
       socket.emit("send_task_comment", {
         taskId,
+        projectId: id,
       });
       setUpdatedProject(parseInt(id as string));
     };
-    socket.on("receive_task_create", (data) => {
-      loadTasks();
-    });
     socket.on("receive_task_comment", (data) => {
       setUpdatedTask(data.taskId);
     });
-  }, [auth, id, loadTasks, setUpdatedProject, setUpdatedTask]);
+
+    // announceRequest = (userId: number) => {
+    //   socket.emit("send_user_invitation", {
+    //     userId,
+    //   });
+    // };
+    socket.on("receive_user_invitation", () => {
+      setUpdateRequests(true);
+    });
+  }, [
+    auth,
+    id,
+    loadTasks,
+    setUpdatedProject,
+    setUpdatedTask,
+    setUpdateRequests,
+  ]);
   return (
     <Box>
       <Typography

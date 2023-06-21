@@ -12,20 +12,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { AttachFile, Comment, MoreHoriz } from "@mui/icons-material";
+import { Comment, MoreHoriz } from "@mui/icons-material";
 import avatarImage from "@/assets/images/avatar.avif";
-import {
-  FormEvent,
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { axiosServer } from "@/services";
 import { AxiosError } from "axios";
-import { useParams } from "react-router-dom";
+
 import useProjectMembers from "@/Hooks/useProjectMembers";
 import { useUpdates } from "@/contexts/UpdatesContext";
 
@@ -55,14 +48,13 @@ const TaskBody = ({
   state,
   assignee,
   reviewer,
-  deadLine,
   announceComment,
-}: taskType & any) => {
+}: taskType & { announceComment: (num: number) => void }) => {
   const { auth } = useAuth();
-  const [loading, members] = useProjectMembers(projectId);
+  const [, members] = useProjectMembers(projectId);
   const { updatedTask, setUpdatedTask } = useUpdates();
   const commentInputRef = useRef<HTMLInputElement | null>(null);
-  const { updatedProject, setUpdatedProject } = useUpdates();
+  const { setUpdatedProject } = useUpdates();
   const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
   const [comments, setComments] = useState<commentType[]>([]);
   const handleSubmit = useCallback(

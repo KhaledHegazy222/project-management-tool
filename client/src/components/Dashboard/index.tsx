@@ -15,7 +15,6 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Drawer,
   SwipeableDrawer,
 } from "@mui/material";
 import Navbar from "./Navbar";
@@ -31,7 +30,7 @@ import {
   StarOutline,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Boards from "./Boards";
 import Members from "./Members";
 import { useAuth } from "@/contexts/AuthContext";

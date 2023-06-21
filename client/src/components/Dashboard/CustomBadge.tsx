@@ -1,5 +1,3 @@
-import React from "react";
-
 const CustomBadge = ({ color }: { color: string }) => {
   return (
     <div

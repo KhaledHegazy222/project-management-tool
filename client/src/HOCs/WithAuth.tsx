@@ -8,7 +8,7 @@ const WithAuth = (WrappedComponent: FC) => {
     const { auth } = useAuth();
     const navigate = useNavigate();
     useEffect(() => {
-      // if (!auth) navigate("/account/login");
+      if (!auth) navigate("/account/login");
     });
 
     return <WrappedComponent />;

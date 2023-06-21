@@ -1,4 +1,4 @@
-import React, { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import TaskBody, { taskType } from "./TaskBody";
 import {
   Box,
@@ -25,7 +25,7 @@ import { useParams } from "react-router-dom";
 import { StyledTextField } from "./Boards.styled";
 import useProjectMembers from "@/Hooks/useProjectMembers";
 import { memberType } from "./MemberCard";
-import axios, { Axios, AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { axiosServer } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
@@ -44,7 +44,12 @@ const BoardBody = ({
   loadTasks,
   announceTask,
   announceComment,
-}: boardType & any) => {
+}: boardType & {
+  addButton: boolean;
+  loadTasks: () => void;
+  announceTask: () => void;
+  announceComment: (taskId: number) => void;
+}) => {
   const { auth, user } = useAuth();
   const { id } = useParams();
   const [addNewTaskShow, setAddNewTaskShow] = useState<boolean>(false);

@@ -1,6 +1,6 @@
-import React, {
+/* eslint-disable */
+import {
   FormEvent,
-  FormEventHandler,
   useCallback,
   useEffect,
   useMemo,
@@ -38,7 +38,7 @@ const Members = () => {
   const isOwner = useMemo(
     () =>
       membersList.some((member) => {
-        return member.id === user?.id && member.role === "OWNER";
+        return parseInt(member.id) === user?.id && member.role === "OWNER";
       }),
     [user, membersList]
   );

@@ -1,5 +1,5 @@
 import { axiosServer } from "@/services";
-import axios from "axios";
+
 import {
   ReactNode,
   createContext,
@@ -13,7 +13,7 @@ import {
 /* eslint-disable */
 
 type userType = {
-  id: string;
+  id: number;
   mail: string;
   first_name: string;
   last_name: string;

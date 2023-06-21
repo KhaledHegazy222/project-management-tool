@@ -16,7 +16,7 @@ import {
 import { StyledButton, StyledLink, StyledTextField } from "./Account.styled";
 import accountBackground from "@/assets/images/accountBackground.jpg";
 import { axiosServer } from "@/services";
-import { AxiosError } from "axios";
+
 import { useAuth } from "@/contexts/AuthContext";
 import useMQ from "@/Hooks/useMQ";
 import { toast } from "react-toastify";
@@ -138,7 +138,7 @@ const Account = () => {
         navigate("/");
       }
     },
-    [login, formData, navigate, setAuth]
+    [login, formData, navigate, setAuth, forgetPassword]
   );
 
   return (

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useEffect, useState } from "react";
 import {
   AppBar,
@@ -13,7 +15,7 @@ import {
 import { StyledNavButton } from "./Dashboard.styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import logo from "@/assets/images/logo100.png";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Close, Done, Notifications } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +27,7 @@ import { useUpdates } from "@/contexts/UpdatesContext";
 type requestType = {
   project_id: number;
   project_title: string;
+  request_first_seen: boolean;
 };
 
 const Navbar = () => {
@@ -33,6 +36,7 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
   const [requests, setRequests] = useState<requestType[]>([]);
+  const { updateRequests, setUpdateRequests } = useUpdates();
   const [stars, setStars] = useState<any[]>([]);
   const { updateStars, setUpdateStars } = useUpdates();
   const [starsAnchorMenu, setStarsAnchorMenu] = useState<null | HTMLElement>(
@@ -109,7 +113,10 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    loadRequests();
+    if (updateRequests) {
+      loadRequests();
+      setUpdateRequests(false);
+    }
     loadRecentProjects();
     if (updateStars) {
       loadStars();
@@ -146,7 +153,7 @@ const Navbar = () => {
         console.log((error as AxiosError).response?.data);
       }
     }
-  }, [auth, updateStars, setUpdateStars]);
+  }, [auth, updateStars, setUpdateStars, updateRequests, setUpdateRequests]);
   return (
     <>
       <AppBar position="static">
@@ -273,7 +280,11 @@ const Navbar = () => {
               }}
             >
               <Badge
-                badgeContent={requests.length}
+                badgeContent={requests.reduce(
+                  (total, current) =>
+                    total + Number(current.request_first_seen),
+                  0
+                )}
                 sx={{
                   "& span": {
                     backgroundColor: "white.main",

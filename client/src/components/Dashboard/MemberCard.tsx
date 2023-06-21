@@ -1,4 +1,3 @@
-import React from "react";
 import { Avatar, Card, CardContent, Typography } from "@mui/material";
 import avatarImage from "@/assets/images/avatar.avif";
 
@@ -10,7 +9,7 @@ export type memberType = {
   role: string;
 };
 
-const MemberCard = ({ id, src, first_name, last_name, role }: memberType) => {
+const MemberCard = ({ first_name, last_name, role }: memberType) => {
   return (
     <Card
       sx={{
