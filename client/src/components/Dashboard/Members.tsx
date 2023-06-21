@@ -63,7 +63,6 @@ const Members = () => {
         console.log((error as AxiosError).response?.data);
         Array.from((error as any).response?.data.non_valid_mails).forEach(
           (email: any) => {
-            console.log(email);
             toast.error(
               `${
                 email.msg === "mail is not exist"

@@ -73,8 +73,18 @@ const Navbar = () => {
   const handleRecentMenuClose = () => {
     setRecentAnchorMenu(null);
   };
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget);
+    try {
+      await axiosServer.patch(
+        `/request/seen`,
+        {},
+        { headers: { Authorization: `Bearer ${auth}` } }
+      );
+      setUpdateRequests(true);
+    } catch (error) {
+      console.log(error as AxiosError);
+    }
   };
   const handleClose = () => {
     setAnchorEl(null);

@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AxiosError } from "axios";
 import { axiosServer } from "@/services";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
 import { useUpdates } from "@/contexts/UpdatesContext";
 
 type categoryType = {

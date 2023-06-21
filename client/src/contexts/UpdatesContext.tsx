@@ -53,10 +53,10 @@ export const UpdatesContextProvider = ({
   const [announceTask, setAnnounceTask] = useState<() => void>(() => {}); // Corrected type
   const [announceComment, setAnnounceComment] = useState<
     (taskId: number) => void
-  >((taskId: number) => {});
+  >(() => {});
   const [announceRequest, setAnnounceRequest] = useState<
     (emails: string[]) => void
-  >((emails: string[]) => {});
+  >(() => {});
 
   const value = useMemo(
     () => ({

@@ -1,4 +1,10 @@
-import React, { FormEvent, useCallback, useEffect, useRef } from "react";
+import React, {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   Grid,
   Typography,
@@ -45,6 +51,7 @@ import useMQ from "@/Hooks/useMQ";
 import { useUpdates } from "@/contexts/UpdatesContext";
 import { Socket, io } from "socket.io-client";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
+import useProjectMembers from "@/Hooks/useProjectMembers";
 
 type projectType = {
   id: string;
@@ -114,6 +121,15 @@ const Dashboard = () => {
     });
   };
   const projectId = window.location.href.split("/")[4];
+  const { user } = useAuth();
+  const [, members] = useProjectMembers(parseInt(projectId));
+  const isOwner = useMemo(
+    () =>
+      members.some((member) => {
+        return parseInt(member.id) === user?.id && member.role === "OWNER";
+      }),
+    [user, members]
+  );
 
   const deleteProject = async (id: string) => {
     await axiosServer.delete(`/project/${id}`, {
@@ -230,7 +246,6 @@ const Dashboard = () => {
       }
     );
     if (projectId) {
-      console.log(projectId);
       (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
         "send_join_project",
         {
@@ -288,7 +303,6 @@ const Dashboard = () => {
       }
     );
     if (projectId) {
-      console.log(projectId);
       (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
         "send_join_project",
         {
@@ -466,24 +480,26 @@ const Dashboard = () => {
                               </>
                             )}
                           </ListItemButton>
-                          <ListItemButton
-                            sx={{
-                              color: "primary.main",
-                            }}
-                            onClick={() => {
-                              deleteProject(project.id);
-                            }}
-                          >
-                            <Close />
-
-                            <Typography
+                          {isOwner && (
+                            <ListItemButton
                               sx={{
-                                margin: "0 10px",
+                                color: "primary.main",
+                              }}
+                              onClick={() => {
+                                deleteProject(project.id);
                               }}
                             >
-                              Delete Project
-                            </Typography>
-                          </ListItemButton>
+                              <Close />
+
+                              <Typography
+                                sx={{
+                                  margin: "0 10px",
+                                }}
+                              >
+                                Delete Project
+                              </Typography>
+                            </ListItemButton>
+                          )}
                         </List>
                       </Collapse>
                     </ListItem>
@@ -610,24 +626,26 @@ const Dashboard = () => {
                               </>
                             )}
                           </ListItemButton>
-                          <ListItemButton
-                            sx={{
-                              color: "primary.main",
-                            }}
-                            onClick={() => {
-                              deleteProject(project.id);
-                            }}
-                          >
-                            <Close />
-
-                            <Typography
+                          {isOwner && (
+                            <ListItemButton
                               sx={{
-                                margin: "0 10px",
+                                color: "primary.main",
+                              }}
+                              onClick={() => {
+                                deleteProject(project.id);
                               }}
                             >
-                              Delete Project
-                            </Typography>
-                          </ListItemButton>
+                              <Close />
+
+                              <Typography
+                                sx={{
+                                  margin: "0 10px",
+                                }}
+                              >
+                                Delete Project
+                              </Typography>
+                            </ListItemButton>
+                          )}
                         </List>
                       </Collapse>
                     </ListItem>
