@@ -23,18 +23,14 @@ jobs:
           mkdir -p ~/.ssh/
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 54.89.147.122 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 54.157.233.237 >> ~/.ssh/known_hosts
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
 
       - name: Upload files to EC2
         run: |
-          rsync -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -r "${{ github.workspace }}/."  ubuntu@54.89.147.122:/home/ubuntu/app
+          rsync -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -r "${{ github.workspace }}/."  ubuntu@54.157.233.237:/home/ubuntu/app
 
       - name: Run deploy script on EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@54.89.147.122 "chmod +x /home/ubuntu/app/deploy.sh && sudo /home/ubuntu/app/deploy.sh"
-
-
-
-      
+          ssh -i ~/.ssh/id_rsa ubuntu@54.157.233.237 "chmod +x /home/ubuntu/app/deploy.sh && sudo /home/ubuntu/app/deploy.sh"
