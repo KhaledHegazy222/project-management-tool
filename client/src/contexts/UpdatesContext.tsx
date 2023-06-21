@@ -9,21 +9,33 @@ type updatesContextType = {
   setUpdateStars: React.Dispatch<React.SetStateAction<boolean>>;
   updateRequests: boolean;
   setUpdateRequests: React.Dispatch<React.SetStateAction<boolean>>;
+  announceTask: () => void;
+  setAnnounceTask: React.Dispatch<React.SetStateAction<() => void>>;
+  announceComment: (taskId: number) => void;
+  setAnnounceComment: React.Dispatch<
+    React.SetStateAction<(taskId: number) => void>
+  >;
+  announceRequest: (emails: string[]) => void;
+  setAnnounceRequest: React.Dispatch<
+    React.SetStateAction<(emails: string[]) => void>
+  >;
 };
-
+/*eslint-disable */
 const updatesContextInitialValue: updatesContextType = {
   updatedTask: null,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUpdatedTask: () => {},
   updatedProject: null,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUpdatedProject: () => {},
   updateStars: true,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUpdateStars: () => {},
   updateRequests: true,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUpdateRequests: () => {},
+  announceTask: () => {},
+  setAnnounceTask: () => {},
+  announceComment: () => {},
+  setAnnounceComment: () => {},
+  announceRequest: () => {},
+  setAnnounceRequest: () => {},
 };
 
 const updatesContext = createContext(updatesContextInitialValue);
@@ -38,6 +50,14 @@ export const UpdatesContextProvider = ({
   const [updateStars, setUpdateStars] = useState<boolean>(true);
   const [updateRequests, setUpdateRequests] = useState<boolean>(true);
 
+  const [announceTask, setAnnounceTask] = useState<() => void>(() => {}); // Corrected type
+  const [announceComment, setAnnounceComment] = useState<
+    (taskId: number) => void
+  >((taskId: number) => {});
+  const [announceRequest, setAnnounceRequest] = useState<
+    (emails: string[]) => void
+  >((emails: string[]) => {});
+
   const value = useMemo(
     () => ({
       updatedTask,
@@ -48,6 +68,12 @@ export const UpdatesContextProvider = ({
       setUpdateStars,
       updateRequests,
       setUpdateRequests,
+      announceTask,
+      setAnnounceTask,
+      announceComment,
+      setAnnounceComment,
+      announceRequest,
+      setAnnounceRequest,
     }),
     [
       updatedTask,
@@ -58,6 +84,12 @@ export const UpdatesContextProvider = ({
       setUpdateStars,
       updateRequests,
       setUpdateRequests,
+      announceTask,
+      setAnnounceTask,
+      announceComment,
+      setAnnounceComment,
+      announceRequest,
+      setAnnounceRequest,
     ]
   );
 

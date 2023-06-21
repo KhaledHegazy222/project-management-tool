@@ -35,18 +35,11 @@ const boardCategories: categoryType[] = [
     color: "#0f0",
   },
 ];
-/* eslint-disable */
-let announceTask: () => void, announceComment: (taskId: number) => void;
-// announceRequest: () => void;
+
 const Boards = () => {
   const { auth } = useAuth();
   const { id } = useParams();
-  const {
-    updatedProject,
-    setUpdatedProject,
-    setUpdatedTask,
-    setUpdateRequests,
-  } = useUpdates();
+  const { updatedProject, setUpdatedProject } = useUpdates();
   const [tasks, setTasks] = useState<taskType[]>([]);
 
   const loadTasks = useCallback(async () => {
@@ -81,49 +74,7 @@ const Boards = () => {
       setUpdatedProject(null);
     }
   }, [id, loadTasks, updatedProject, setUpdatedProject]);
-  useEffect(() => {
-    const socket = io(import.meta.env.VITE_API_URL, {
-      transports: ["websocket"],
-      query: {
-        token: auth,
-      },
-    });
-    announceTask = () => {
-      socket.emit("send_task_changes", {
-        projectId: id,
-      });
-    };
-    socket.on("receive_task_changes", () => {
-      loadTasks();
-    });
 
-    announceComment = (taskId: number) => {
-      socket.emit("send_task_comment", {
-        taskId,
-        projectId: id,
-      });
-      setUpdatedProject(parseInt(id as string));
-    };
-    socket.on("receive_task_comment", (data) => {
-      setUpdatedTask(data.taskId);
-    });
-
-    // announceRequest = (userId: number) => {
-    //   socket.emit("send_user_invitation", {
-    //     userId,
-    //   });
-    // };
-    socket.on("receive_user_invitation", () => {
-      setUpdateRequests(true);
-    });
-  }, [
-    auth,
-    id,
-    loadTasks,
-    setUpdatedProject,
-    setUpdatedTask,
-    setUpdateRequests,
-  ]);
   return (
     <Box>
       <Typography
@@ -151,8 +102,6 @@ const Boards = () => {
             tasks={tasks.filter((task) => task.state === category.name)}
             addButton={!index}
             loadTasks={loadTasks}
-            announceTask={announceTask}
-            announceComment={announceComment}
           />
         ))}
       </Box>

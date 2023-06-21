@@ -43,6 +43,8 @@ import noProjectFound from "@/assets/images/noProjectFound.jpg";
 import selectProject from "@/assets/images/selectProject.jpg";
 import useMQ from "@/Hooks/useMQ";
 import { useUpdates } from "@/contexts/UpdatesContext";
+import { Socket, io } from "socket.io-client";
+import { DefaultEventsMap } from "@socket.io/component-emitter";
 
 type projectType = {
   id: string;
@@ -50,9 +52,11 @@ type projectType = {
   opened: boolean;
 };
 
+let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 // eslint-disable-next-line react-refresh/only-export-components
 const Dashboard = () => {
   const navigate = useNavigate();
+
   const { auth } = useAuth();
   const { matchesLarge, matchesMedium, matchesSmall } = useMQ();
   const { updateStars, setUpdateStars } = useUpdates();
@@ -109,6 +113,8 @@ const Dashboard = () => {
       });
     });
   };
+  const projectId = window.location.href.split("/")[4];
+
   const deleteProject = async (id: string) => {
     await axiosServer.delete(`/project/${id}`, {
       headers: { Authorization: `Bearer ${auth}` },
@@ -120,8 +126,7 @@ const Dashboard = () => {
     });
     setProjects((projects) => projects.filter((project) => project.id !== id));
 
-    const projectID = window.location.href.split("/")[4];
-    if (id === projectID) {
+    if (id === projectId) {
       navigate("/dashboard");
     }
   };
@@ -150,6 +155,14 @@ const Dashboard = () => {
       console.log((error as AxiosError).response?.data);
     }
   };
+  const {
+    setUpdatedProject,
+    setUpdatedTask,
+    setUpdateRequests,
+    setAnnounceTask,
+    setAnnounceComment,
+    setAnnounceRequest,
+  } = useUpdates();
 
   useEffect(() => {
     loadData();
@@ -191,6 +204,139 @@ const Dashboard = () => {
     }
   }, [auth, setUpdateStars, updateStars]);
 
+  useEffect(() => {
+    socket = io(import.meta.env.VITE_API_URL, {
+      transports: ["websocket"],
+      query: {
+        token: auth,
+      },
+    });
+    setAnnounceRequest(() => (emails: string[]) => {
+      if (emails)
+        (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+          "send_user_invitation",
+          {
+            invitedMails: emails,
+          }
+        );
+    });
+  }, [auth, setAnnounceRequest]);
+  useEffect(() => {
+    if (!socket) return;
+    (socket as Socket<DefaultEventsMap, DefaultEventsMap>).on(
+      "receive_user_invitation",
+      () => {
+        setUpdateRequests(true);
+      }
+    );
+    if (projectId) {
+      console.log(projectId);
+      (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+        "send_join_project",
+        {
+          projectId,
+        }
+      );
+      setAnnounceTask(() => () => {
+        (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+          "send_task_changes",
+          {
+            projectId,
+          }
+        );
+      });
+      setAnnounceComment(() => (taskId: number) => {
+        if (taskId)
+          (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+            "send_task_comment",
+            {
+              taskId,
+              projectId,
+            }
+          );
+      });
+      (socket as Socket<DefaultEventsMap, DefaultEventsMap>).on(
+        "receive_task_changes",
+        () => {
+          console.log("We need to updated", projectId);
+          setUpdatedProject(parseInt(projectId));
+        }
+      );
+      (socket as Socket<DefaultEventsMap, DefaultEventsMap>).on(
+        "receive_task_comment",
+        (data) => {
+          setUpdatedTask(data.taskId);
+        }
+      );
+    }
+  }, [
+    auth,
+    projectId,
+    setUpdatedProject,
+    setUpdatedTask,
+    setUpdateRequests,
+    setAnnounceTask,
+    setAnnounceComment,
+    setAnnounceRequest,
+  ]);
+  useEffect(() => {
+    if (!socket) return;
+    (socket as Socket<DefaultEventsMap, DefaultEventsMap>).on(
+      "receive_user_invitation",
+      () => {
+        setUpdateRequests(true);
+      }
+    );
+    if (projectId) {
+      console.log(projectId);
+      (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+        "send_join_project",
+        {
+          projectId,
+        }
+      );
+      setAnnounceTask(() => () => {
+        (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+          "send_task_changes",
+          {
+            projectId,
+          }
+        );
+      });
+      setAnnounceComment(() => (taskId: number) => {
+        if (taskId)
+          (socket as Socket<DefaultEventsMap, DefaultEventsMap>).emit(
+            "send_task_comment",
+            {
+              taskId,
+              projectId,
+            }
+          );
+      });
+      (socket as Socket<DefaultEventsMap, DefaultEventsMap>).on(
+        "receive_task_changes",
+        () => {
+          console.log("We need to updated", projectId);
+          setUpdatedProject(parseInt(projectId));
+        }
+      );
+      (socket as Socket<DefaultEventsMap, DefaultEventsMap>).on(
+        "receive_task_comment",
+        (data) => {
+          setUpdatedTask(data.taskId);
+        }
+      );
+    }
+  }, [
+    auth,
+    projectId,
+    setUpdatedProject,
+    setUpdatedTask,
+    setUpdateRequests,
+    setAnnounceTask,
+    setAnnounceComment,
+    setAnnounceRequest,
+  ]);
   return (
     <>
       <Box
@@ -257,7 +403,6 @@ const Dashboard = () => {
                         <List>
                           <ListItemButton
                             onClick={() => {
-                              setOpenDrawer(false);
                               navigate(`/dashboard/${project.id}/members`);
                             }}
                           >
@@ -270,10 +415,8 @@ const Dashboard = () => {
                               Members List
                             </Typography>
                           </ListItemButton>
-
                           <ListItemButton
                             onClick={() => {
-                              setOpenDrawer(false);
                               navigate(`/dashboard/${project.id}/boards`);
                             }}
                           >
@@ -288,15 +431,51 @@ const Dashboard = () => {
                           </ListItemButton>
                           <ListItemButton
                             sx={{
+                              color: "#000",
+                            }}
+                            onClick={() => {
+                              if (stars.includes(parseInt(project.id))) {
+                                clearStar(parseInt(project.id));
+                              } else {
+                                setStar(parseInt(project.id));
+                              }
+                            }}
+                          >
+                            {stars.includes(parseInt(project.id)) ? (
+                              <>
+                                <Star />
+                                <Typography
+                                  sx={{
+                                    margin: "0 10px",
+                                  }}
+                                >
+                                  Starred
+                                </Typography>
+                              </>
+                            ) : (
+                              <>
+                                {" "}
+                                <StarOutline />
+                                <Typography
+                                  sx={{
+                                    margin: "0 10px",
+                                  }}
+                                >
+                                  Star Project
+                                </Typography>
+                              </>
+                            )}
+                          </ListItemButton>
+                          <ListItemButton
+                            sx={{
                               color: "primary.main",
                             }}
                             onClick={() => {
-                              setOpenDrawer(false);
-
                               deleteProject(project.id);
                             }}
                           >
                             <Close />
+
                             <Typography
                               sx={{
                                 margin: "0 10px",
@@ -630,4 +809,5 @@ const Dashboard = () => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export default WithAuth(Dashboard);

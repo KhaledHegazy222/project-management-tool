@@ -48,11 +48,10 @@ const TaskBody = ({
   state,
   assignee,
   reviewer,
-  announceComment,
-}: taskType & { announceComment: (num: number) => void }) => {
-  const { auth } = useAuth();
+}: taskType) => {
+  const { auth, user } = useAuth();
   const [, members] = useProjectMembers(projectId);
-  const { updatedTask, setUpdatedTask } = useUpdates();
+  const { updatedTask, setUpdatedTask, announceComment } = useUpdates();
   const commentInputRef = useRef<HTMLInputElement | null>(null);
   const { setUpdatedProject } = useUpdates();
   const [taskDialogShow, setTaskDialogShow] = useState<boolean>(false);
@@ -73,8 +72,8 @@ const TaskBody = ({
             [
               ...comments,
               {
-                first_name: "Khaled",
-                last_name: "leader",
+                first_name: user?.first_name,
+                last_name: user?.last_name,
                 creation_time: Date.now().toString(),
                 comment_content: commentInputRef.current?.value,
               },

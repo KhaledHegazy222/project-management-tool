@@ -1,11 +1,5 @@
 /* eslint-disable */
-import {
-  FormEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -26,6 +20,7 @@ import { useParams } from "react-router-dom";
 import { AxiosError } from "axios";
 import { ReactMultiEmail } from "react-multi-email";
 import { toast } from "react-toastify";
+import { useUpdates } from "@/contexts/UpdatesContext";
 
 const Members = () => {
   const { id } = useParams();
@@ -35,6 +30,7 @@ const Members = () => {
     useState<boolean>(false);
   const [addedEmails, setAddedEmails] = useState<string[]>([]);
   const [membersList, setMembersList] = useState<memberType[]>([]);
+  const { announceRequest } = useUpdates();
   const isOwner = useMemo(
     () =>
       membersList.some((member) => {
@@ -60,6 +56,7 @@ const Members = () => {
           },
           { headers: { Authorization: `Bearer ${auth}` } }
         );
+        announceRequest(addedEmails);
         setAddMembersDialogShow(false);
         toast.success("Inviation Sent Successfully");
       } catch (error) {
@@ -78,7 +75,7 @@ const Members = () => {
         );
       }
     },
-    [id, addedEmails, auth]
+    [id, addedEmails, auth, announceRequest]
   );
   useEffect(() => {
     loadData();

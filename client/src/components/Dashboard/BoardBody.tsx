@@ -29,6 +29,7 @@ import { AxiosError } from "axios";
 import { axiosServer } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
+import { useUpdates } from "@/contexts/UpdatesContext";
 
 export type boardType = {
   name: string;
@@ -42,19 +43,15 @@ const BoardBody = ({
   tasks,
   addButton = false,
   loadTasks,
-  announceTask,
-  announceComment,
 }: boardType & {
   addButton: boolean;
   loadTasks: () => void;
-  announceTask: () => void;
-  announceComment: (taskId: number) => void;
 }) => {
   const { auth, user } = useAuth();
   const { id } = useParams();
   const [addNewTaskShow, setAddNewTaskShow] = useState<boolean>(false);
   const [loading, members] = useProjectMembers(parseInt(id as string));
-
+  const { announceTask } = useUpdates();
   const isOwner = useMemo(
     () =>
       members.some((member) => {
@@ -97,13 +94,13 @@ const BoardBody = ({
           headers: { Authorization: `Bearer ${auth}` },
         }
       );
+      loadTasks();
+      announceTask();
+      setAddNewTaskShow(false);
       toast.success("Task Created Successfully", {
         autoClose: 1000,
         position: "top-center",
       });
-      loadTasks();
-      announceTask();
-      setAddNewTaskShow(false);
     } catch (error) {
       console.log((error as AxiosError).response?.data);
     }
@@ -171,7 +168,7 @@ const BoardBody = ({
                 },
               }}
             >
-              <TaskBody {...task} announceComment={announceComment} />
+              <TaskBody {...task} />
             </ListItem>
           </Paper>
         ))}

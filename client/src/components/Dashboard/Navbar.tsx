@@ -375,157 +375,168 @@ const Navbar = () => {
           )}
 
           {!matchesMedium && (
-            <IconButton onClick={() => setOpenMenuDrawer(true)}>
-              <MenuIcon sx={{ color: "white.main" }} />
-            </IconButton>
-          )}
-          <Drawer
-            open={openMenuDrawer}
-            onClose={() => setOpenMenuDrawer(false)}
-            anchor="right"
-          >
-            <Box
-              sx={{
-                padding: "20px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "20px",
-              }}
-            >
-              <Button onClick={handleRecentMenuClick}>
-                <Typography sx={{ fontSize: "inherit", fontWeight: "inherit" }}>
-                  Recent
-                </Typography>
-                <ExpandMoreIcon
-                  sx={{ fontSize: "inherit", fontWeight: "inherit" }}
-                />
-              </Button>
-              <Menu
-                open={recentMenuOpen}
-                anchorEl={recentAnchorMenu}
-                onClose={handleRecentMenuClose}
-              >
-                {recentProjects.length ? (
-                  recentProjects.map((project) => (
-                    <MenuItem
-                      key={project.project_id}
-                      onClick={() =>
-                        navigate(`/dashboard/${project.project_id}/boards`)
-                      }
-                    >
-                      {project.project_title}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>
-                    Currently, you don't have any recent Projects!
-                  </MenuItem>
-                )}
-              </Menu>
-              <Button onClick={handleStarMenuClick}>
-                <Typography sx={{ fontSize: "inherit", fontWeight: "inherit" }}>
-                  Starred
-                </Typography>
-                <ExpandMoreIcon
-                  sx={{ fontSize: "inherit", fontWeight: "inherit" }}
-                />
-              </Button>
-              <Menu
-                open={starsMenuOpen}
-                anchorEl={starsAnchorMenu}
-                onClose={() => {
-                  handleStarsMenuClose();
-                }}
-              >
-                {stars.length ? (
-                  stars.map((project) => (
-                    <MenuItem
-                      key={project.project_id}
-                      onClick={() =>
-                        navigate(`/dashboard/${project.project_id}/boards`)
-                      }
-                    >
-                      {project.project_title}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>
-                    Currently, you don't have any starred Projects!
-                  </MenuItem>
-                )}
-              </Menu>
+            <>
+              <IconButton onClick={() => setOpenMenuDrawer(true)}>
+                <MenuIcon sx={{ color: "white.main" }} />
+              </IconButton>
 
-              <Box>
-                <IconButton
-                  onClick={handleClick}
+              <Drawer
+                open={openMenuDrawer}
+                onClose={() => setOpenMenuDrawer(false)}
+                anchor="right"
+              >
+                <Box
                   sx={{
-                    margin: "0 20px",
-                    color: "gray",
+                    padding: "20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "20px",
                   }}
                 >
-                  <Badge
-                    badgeContent={requests.reduce(
-                      (total, current) =>
-                        total + Number(current.request_first_seen),
-                      0
+                  <Button onClick={handleRecentMenuClick}>
+                    <Typography
+                      sx={{ fontSize: "inherit", fontWeight: "inherit" }}
+                    >
+                      Recent
+                    </Typography>
+                    <ExpandMoreIcon
+                      sx={{ fontSize: "inherit", fontWeight: "inherit" }}
+                    />
+                  </Button>
+                  <Menu
+                    open={recentMenuOpen}
+                    anchorEl={recentAnchorMenu}
+                    onClose={handleRecentMenuClose}
+                  >
+                    {recentProjects.length ? (
+                      recentProjects.map((project) => (
+                        <MenuItem
+                          key={project.project_id}
+                          onClick={() =>
+                            navigate(`/dashboard/${project.project_id}/boards`)
+                          }
+                        >
+                          {project.project_title}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>
+                        Currently, you don't have any recent Projects!
+                      </MenuItem>
                     )}
-                    sx={{
-                      "& span": {
-                        color: "white.main",
-                      },
+                  </Menu>
+                  <Button onClick={handleStarMenuClick}>
+                    <Typography
+                      sx={{ fontSize: "inherit", fontWeight: "inherit" }}
+                    >
+                      Starred
+                    </Typography>
+                    <ExpandMoreIcon
+                      sx={{ fontSize: "inherit", fontWeight: "inherit" }}
+                    />
+                  </Button>
+                  <Menu
+                    open={starsMenuOpen}
+                    anchorEl={starsAnchorMenu}
+                    onClose={() => {
+                      handleStarsMenuClose();
                     }}
                   >
-                    <Notifications
+                    {stars.length ? (
+                      stars.map((project) => (
+                        <MenuItem
+                          key={project.project_id}
+                          onClick={() =>
+                            navigate(`/dashboard/${project.project_id}/boards`)
+                          }
+                        >
+                          {project.project_title}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>
+                        Currently, you don't have any starred Projects!
+                      </MenuItem>
+                    )}
+                  </Menu>
+
+                  <Box>
+                    <IconButton
+                      onClick={handleClick}
                       sx={{
-                        color: "black",
+                        margin: "0 20px",
+                        color: "gray",
                       }}
-                    />
-                  </Badge>
-                  <Typography>Notifications</Typography>
-                </IconButton>
-                <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                  {requests.length ? (
-                    requests.map((request: requestType) => (
-                      <MenuItem
-                        key={request.project_id}
-                        disableRipple
+                    >
+                      <Badge
+                        badgeContent={requests.reduce(
+                          (total, current) =>
+                            total + Number(current.request_first_seen),
+                          0
+                        )}
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
+                          "& span": {
+                            color: "white.main",
+                          },
                         }}
                       >
-                        <Typography>{`You're invited to join ${request.project_title}`}</Typography>
-                        <Box
+                        <Notifications
                           sx={{
-                            marginLeft: "20px",
+                            color: "black",
                           }}
-                        >
-                          <IconButton
-                            onClick={() => acceptRequest(request.project_id)}
+                        />
+                      </Badge>
+                      <Typography>Notifications</Typography>
+                    </IconButton>
+                    <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                      {requests.length ? (
+                        requests.map((request: requestType) => (
+                          <MenuItem
+                            key={request.project_id}
+                            disableRipple
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
                           >
-                            <Done sx={{ color: "green" }} />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => cancelRequest(request.project_id)}
-                          >
-                            <Close sx={{ color: "red" }} />
-                          </IconButton>
-                        </Box>
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem disabled>
-                      Currently, you don't have any invitations!
-                    </MenuItem>
-                  )}
-                </Menu>
-              </Box>
-              <Button variant="contained"> logout</Button>
-            </Box>
-          </Drawer>
+                            <Typography>{`You're invited to join ${request.project_title}`}</Typography>
+                            <Box
+                              sx={{
+                                marginLeft: "20px",
+                              }}
+                            >
+                              <IconButton
+                                onClick={() =>
+                                  acceptRequest(request.project_id)
+                                }
+                              >
+                                <Done sx={{ color: "green" }} />
+                              </IconButton>
+                              <IconButton
+                                onClick={() =>
+                                  cancelRequest(request.project_id)
+                                }
+                              >
+                                <Close sx={{ color: "red" }} />
+                              </IconButton>
+                            </Box>
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled>
+                          Currently, you don't have any invitations!
+                        </MenuItem>
+                      )}
+                    </Menu>
+                  </Box>
+                  <Button variant="contained"> logout</Button>
+                </Box>
+              </Drawer>
+            </>
+          )}
         </Toolbar>
       </AppBar>
     </>
