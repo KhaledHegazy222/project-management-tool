@@ -37,10 +37,10 @@ io.on('connection', (socket) => {
   socket.on('send_user_invitation', async (data) => {
     const { invitedMails } = data;
 
-    const getUserQuery = queries.queryList.GET_USER_QUERY;
+    const getUserIdQuery = queries.queryList.GET_USER_ID_QUERY;
     const invitedUsersId = await Promise.all(invitedMails.map(async (invitedMail) => {
-      const invitedUserId = await dbConnection.dbQuery(getUserQuery, [invitedMail]);
-      return invitedUserId;
+      const invitedUserId = await dbConnection.dbQuery(getUserIdQuery, [invitedMail]);
+      return invitedUserId.rows[0].user_id;
     }));
     console.log('send_user_invitation', invitedUsersId);
     invitedUsersId.forEach((invitedUserId) => {
