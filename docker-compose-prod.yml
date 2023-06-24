@@ -37,21 +37,24 @@ services:
     networks:
       - app-network
 
-  # https-portal:
-  #   image: steveltn/https-portal:1
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   environment:
-  #     DOMAINS: "project-management.duckdns.org -> http://client:3000, api.project-management.duckdns.org -> http://server:8000"
-  #     STAGE: "production" # Don't use production until staging works
-  #     WEBSOCKET: "true"
-  #   volumes:
-  #     - https-portal-data:/var/lib/https-portal
-  #   networks:
-  #     - app-network
+  https-portal:
+    image: steveltn/https-portal:1
+    depends_on:
+      - client
+      - server
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAINS: "project-management.duckdns.org -> http://client:3000, api.project-management.duckdns.org -> http://server:8000"
+      STAGE: "production" # Don't use production until staging works
+      WEBSOCKET: "true"
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+    networks:
+      - app-network
 
-# volumes:
-#   https-portal-data: # Recommended, to avoid re-signing when upgrading HTTPS-PORTAL
+volumes:
+  https-portal-data: # Recommended, to avoid re-signing when upgrading HTTPS-PORTAL
 networks:
   app-network:
